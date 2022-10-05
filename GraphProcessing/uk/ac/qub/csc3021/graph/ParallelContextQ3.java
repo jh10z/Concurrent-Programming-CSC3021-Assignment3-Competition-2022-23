@@ -4,14 +4,12 @@ import java.util.concurrent.*;
 
 public class ParallelContextQ3 extends ParallelContext {
     private class ThreadQ3 extends Thread {
+        public void run() {
 
-	public void run() {
-	}
+        }
     };
-
-    
-    public ParallelContextQ3( int num_threads ) {
-	super( num_threads );
+    public ParallelContextQ3(int num_threads) {
+	    super( num_threads );
     }
 
     public void terminate() {
@@ -23,5 +21,9 @@ public class ParallelContextQ3 extends ParallelContext {
     // through this barrier.
     public void iterate( SparseMatrix matrix, Relax relax ) {
 	// use matrix.iterate( relax, from, to ); in each thread
+    }
+
+    public void edgemap( SparseMatrix matrix, Relax relax ) {
+    // missing method for abstract class added
     }
 }

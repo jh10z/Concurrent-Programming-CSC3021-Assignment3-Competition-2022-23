@@ -13,10 +13,10 @@ public abstract class SparseMatrix {
 
     // Perform one sweep over all edges in the graph, calling the functional
     // interface Relax once for each edge.
-    public abstract void edgemap( Relax relax );
+    public abstract void edgemap(Relax relax);
 
     // Perform part of a sweep, visiting only a subset of the edges. This
     // method is used only in Assignment 2.
-    public abstract void ranged_edgemap( Relax relax, int from, int to );
+    public abstract void ranged_edgemap(Relax relax, int from, int to);
 }
 

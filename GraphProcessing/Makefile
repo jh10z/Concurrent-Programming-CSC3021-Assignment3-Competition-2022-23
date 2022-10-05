@@ -34,7 +34,6 @@ $(PACKAGE): $(PKG_CLASS_FILES)
 
 submit.zip: $(SUBMIT)
 	zip submit.zip $(SUBMIT)
-
 clean:
 	$(RM) $(ALL)
 	$(RM) uk/ac/qub/csc3021/graph/*.class
