@@ -100,11 +100,12 @@ public class SparseMatrixCOO extends SparseMatrix {
 		//    the contribution to the new PageRank value of a destination
 		//    vertex made by the corresponding source vertex
 		//PUT CODE HERE: go through the adj matrix
+
     }
 
-    public void ranged_edgemap( Relax relax, int from, int to ) {
+    public void ranged_edgemap(Relax relax, int from, int to) {
 		// Only implement for parallel/concurrent processing
 		// if you find it useful
-		// CHECK IF NEED TO PUT CODE HERE
+		// CHECK IF YOU NEED TO PUT CODE HERE
     }
 }

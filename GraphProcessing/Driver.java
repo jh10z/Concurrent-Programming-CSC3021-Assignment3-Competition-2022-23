@@ -74,8 +74,8 @@ class Driver {
 	    matrix = new SparseMatrixCOO( inputFileCOO );
 	} else if( format.equalsIgnoreCase( "ICHOOSE" ) ) {
 	    // Pick any you want.
-	    // matrix = new SparseMatrixCOO( inputFileCOO );
-	    matrix = new SparseMatrixCSR( inputFileCSR );
+	    matrix = new SparseMatrixCOO( inputFileCOO );
+	    //matrix = new SparseMatrixCSR( inputFileCSR );
 	    // matrix = new SparseMatrixCSC( inputFileCSC );
 	} else {
 	    System.err.println( "Unknown format '" + format + "'" );
