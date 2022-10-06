@@ -17,10 +17,8 @@ import java.util.*;
 // in coordinate format (COO)
 public class SparseMatrixCOO extends SparseMatrix {
     // TODO: variable declarations
-    //HashMap<Integer, Integer> cooHashMap;
 	Tuple[] cooTuple;
-
-	HashSet<Integer> source_vertices = new HashSet<Integer>();
+	HashSet<Integer> source_vertices;
     int num_vertices; // Number of vertices in the graph
     int num_edges;    // Number of edges in the graph
 
@@ -79,6 +77,7 @@ public class SparseMatrixCOO extends SparseMatrix {
 //		int[][] matrix = new int[num_vertices][num_vertices];
 //		cooHashMap = new HashMap<Integer, Integer>(); //unweighted graph + no insertion order which is fine for coo
 		cooTuple = new Tuple[num_edges];
+		source_vertices = new HashSet<Integer>();
 
 		int edge[] = new int[2]; //Create an edge, edge in COO is source to destination
 		for(int i = 0; i < num_edges; i++) { //use this to iterate through rows
@@ -93,12 +92,12 @@ public class SparseMatrixCOO extends SparseMatrix {
 //			matrix[edge[1]][edge[0]] = 1; //NOT A SPARSE MATRIX???
 			cooTuple[i] = new Tuple(edge[0], edge[1]);
 			source_vertices.add(edge[0]); //For calc out degree later
-			//source_verticesvertices.add(edge[1]);
+			//source_vertices vertices.add(edge[1]);
 		}
 		//System.out.println("Hash Map: " + cooHashMap.size()); //Doesn't work
 //		System.out.println("Tuple: " + cooTuple.length);
 //		System.out.println("Should Match: " + num_edges);
-		System.out.println(source_vertices.size());
+		//System.out.println(source_vertices.size());
 	}
 
     // Return number of vertices in the graph
@@ -116,16 +115,35 @@ public class SparseMatrixCOO extends SparseMatrix {
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
 		//PUT CODE HERE
-		System.out.println(outdeg.length);
+		//System.out.println(outdeg.length);
 		//int count = 0;
 //		for (int i = 0; i < num_edges; i++) {
 //			if(vertices.toArray()[i] == cooTuple[i])
 //		}
-		
-		int i = 0;
-		for (Integer vertex : source_vertices) {
-			outdeg[i] = (int)Arrays.stream(cooTuple).filter(x -> x.source == vertex).count();
-			i++;
+//		//Slow
+//		int v_count = 0;
+//		for (Integer vertex : source_vertices) {
+//			int count = 0;
+//			for (int j = 0; j < cooTuple.length; j++) {
+//				if(vertex == (Integer)cooTuple[j].source) {
+//					count++;
+//				}
+//			}
+//			outdeg[v_count] = count;
+//			v_count++;
+//		}
+		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
+
+		for (int i = 0; i < num_edges; i++) {
+			if (!vertexCount.containsKey((Integer) cooTuple[i].source)) {
+				vertexCount.put(cooTuple[i].source, 1);
+			} else {
+				vertexCount.put(cooTuple[i].source, vertexCount.get(cooTuple[i].source) + 1);
+			}
+		}
+
+		for (Map.Entry<Integer, Integer> node : vertexCount.entrySet()) {
+			outdeg[node.getKey()] = node.getValue();
 		}
     }
 
