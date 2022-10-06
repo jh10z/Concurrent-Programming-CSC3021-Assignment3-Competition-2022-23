@@ -17,7 +17,8 @@ import java.io.UnsupportedEncodingException;
 // a source vertex and a column index corresponds to a destination
 public class SparseMatrixCSR extends SparseMatrix {
     // TODO: variable declarations
-    //ADD VARIABLES FOR VOID METHODS?
+    int[] index;
+	int[] destination;
     int num_vertices; // Number of vertices in the graph
     int num_edges;    // Number of edges in the graph
 
@@ -38,7 +39,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 		}
     }
 
-    int getNext( BufferedReader rd ) throws Exception {
+    int getNext(BufferedReader rd) throws Exception {
 		String line = rd.readLine();
 		if(line == null) {
 			throw new Exception("premature end of file");
@@ -59,22 +60,31 @@ public class SparseMatrixCSR extends SparseMatrix {
 		num_edges = getNext(rd);
 
 		// TODO: Allocate memory for the CSR representation
-		//PUT CODE HERE
+		index = new int[num_vertices + 1];
+		destination = new int[num_edges];
 
-		for( int i = 0; i < num_vertices; i++ ) {
+		index[0] = 0;
+		for( int i = 0; i < num_vertices; i++) { //row
 			line = rd.readLine();
 			if(line == null) {
 				throw new Exception("premature end of file");
 			}
-			String elm[] = line.split(" ");
+			String elm[] = line.split(" "); //parses columns
 			assert Integer.parseInt(elm[0]) == i : "Error in CSR file";
-			for( int j = 1; j < elm.length; j++ ) {
-			int dst = Integer.parseInt(elm[j]);
-			// TODO:
-			//    Record an edge from source i to destination dst
-			//PUT CODE HERE
+
+			index[0] = 0;
+			for(int j = 1; j < elm.length; j++) {
+				int dst = Integer.parseInt(elm[j]);
+				// TODO:
+				//    Record an edge from source i to destination dst
+				destination[index[i + 1] + (j - 1)] = dst;
+				//System.out.println(destination[index[i + 1] + (j - 1)]);
 			}
+			index[i+1] = index[i] + elm.length;
+//			if(i == 5)
+//				System.out.println(elm.length);
 		}
+
     }
 
     // Return number of vertices in the graph
@@ -89,6 +99,11 @@ public class SparseMatrixCSR extends SparseMatrix {
 	//    Calculate the out-degree for every vertex, i.e., the
 	//    number of edges where a vertex appears as a source vertex.
 	//PUT CODE HERE
+		for (int i = 0; i < num_vertices; i++) {
+			outdeg[i] = (index[i+1] - index[i]) - 1;
+//			if(i == 5)
+//				System.out.println(outdeg[i]);
+		}
     }
     
     // Apply relax once to every edge in the graph
