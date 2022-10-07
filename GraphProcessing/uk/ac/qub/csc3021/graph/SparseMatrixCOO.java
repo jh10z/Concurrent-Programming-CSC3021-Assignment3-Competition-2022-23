@@ -17,8 +17,6 @@ import java.util.*;
 // in coordinate format (COO)
 public class SparseMatrixCOO extends SparseMatrix {
     // TODO: variable declarations
-	//Tuple[] cooTuple;
-
 	int[] source;
 	int[] dest;
     int num_vertices; // Number of vertices in the graph
@@ -46,7 +44,6 @@ public class SparseMatrixCOO extends SparseMatrix {
 		if(line == null) {
 			throw new Exception( "premature end of file" );
 		}
-		System.out.println("Get Next: " + Integer.parseInt(line));
 		return Integer.parseInt(line);
     }
 
@@ -96,32 +93,13 @@ public class SparseMatrixCOO extends SparseMatrix {
 
     // Auxiliary function for PageRank calculation
     public void calculateOutDegree(int outdeg[]) {
-//		for (int i = 0; i < outdeg.length; i++) {
-//			System.out.println(outdeg);
-//		}
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-//		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
-//
-//		for (int i = 0; i < num_edges; i++) {
-//			if (!vertexCount.containsKey((Integer) cooTuple[i].source)) {
-//				vertexCount.put(cooTuple[i].source, 1);
-//				continue;
-//			}
-//			vertexCount.put(cooTuple[i].source, vertexCount.get(cooTuple[i].source) + 1);
-//		}
-//
-//		for (Map.Entry<Integer, Integer> node : vertexCount.entrySet()) {
-//			outdeg[node.getKey()] = node.getValue();
-//		}
 
 		for (int i = 0; i < num_edges; i++) {
-			//outdeg[cooTuple[i].source] += 1;
 			outdeg[source[i]] += 1;
 		}
-		System.out.println(outdeg[0]);
-		System.out.println(outdeg[1]);
     }
 
     public void edgemap(Relax relax) {
@@ -139,15 +117,6 @@ public class SparseMatrixCOO extends SparseMatrix {
 		// if you find it useful
 		// CHECK IF YOU NEED TO PUT CODE HERE
     }
-
-	public class Tuple {
-		public int source;
-		public int dest;
-		public Tuple(int source, int dest) {
-			this.source = source;
-			this.dest = dest;
-		}
-	}
 }
 
 

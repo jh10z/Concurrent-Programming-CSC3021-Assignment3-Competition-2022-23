@@ -80,7 +80,6 @@ public class SparseMatrixCSR extends SparseMatrix {
 				destination[index[i] + (j-1)] = dst;
 			}
 		}
-
     }
 
     // Return number of vertices in the graph
