@@ -11,13 +11,15 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.TreeMap;
 
 // This class represents the adjacency matrix of a graph as a sparse matrix
 // in compressed sparse columns format (CSC). The incoming edges for each
 // vertex are listed.
 public class SparseMatrixCSC extends SparseMatrix {
     // TODO: variable declarations
-    //ADD VARIABLES OF void methods answers for get
+	int[] index;
+	int[] source;
     int num_vertices; // Number of vertices in the graph
     int num_edges;    // Number of edges in the graph
 
@@ -59,22 +61,30 @@ public class SparseMatrixCSC extends SparseMatrix {
 		num_edges = getNext(rd);
 
 		// TODO: allocate data structures
-		//PUT CODE HERE
+		index = new int[num_vertices + 1];
+		source = new int[num_edges];
 
+		index[0] = 0;
 		for(int i = 0; i < num_vertices; i++) {
 			line = rd.readLine();
 			if(line == null) {
-				throw new Exception( "premature end of file" );
+				throw new Exception("premature end of file");
 			}
-			String elm[] = line.split( " " );
+			String elm[] = line.split(" ");
 			assert Integer.parseInt(elm[0]) == i : "Error in CSC file";
-			for(int j = 1; j < elm.length; j++ ){
-			int src = Integer.parseInt(elm[j]);
-			// TODO:
-			//    Record an edge from source src to destination i
-			//PUT CODE HERE
+
+			index[i + 1] = (index[i] + elm.length) - 1; //index[1] = 0 + 93
+			for(int j = 1; j < elm.length; j++) {
+				int src = Integer.parseInt(elm[j]);
+				// TODO:
+				//    Record an edge from source src to destination i
+				source[index[i] + (j - 1)] = src;
 			}
+			if(i == 1)
+				break;
 		}
+		System.out.println(source[index[1]]);
+		System.out.println(source[index[2]-1]); // 0
 	}
 
     // Return number of vertices in the graph
@@ -88,7 +98,12 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-		//PUT CODE HERE
+		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
+
+		for (int i = 0; i < index.length - 1; i++) { //use index to get rows
+			for (int j = index[i]; j < index[i+1]; j++) { // iterate through rows values (columns)
+			}
+		}
     }
     
     public void edgemap(Relax relax) {

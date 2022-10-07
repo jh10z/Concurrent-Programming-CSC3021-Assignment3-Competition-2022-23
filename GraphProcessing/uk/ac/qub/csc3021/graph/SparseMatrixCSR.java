@@ -64,7 +64,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 		destination = new int[num_edges];
 
 		index[0] = 0;
-		for( int i = 0; i < num_vertices; i++) { //row
+		for(int i = 0; i < num_vertices; i++) { //row
 			line = rd.readLine();
 			if(line == null) {
 				throw new Exception("premature end of file");
@@ -72,17 +72,13 @@ public class SparseMatrixCSR extends SparseMatrix {
 			String elm[] = line.split(" "); //parses columns
 			assert Integer.parseInt(elm[0]) == i : "Error in CSR file";
 
-			index[0] = 0;
+			index[i + 1] = (index[i] + elm.length) - 1;
 			for(int j = 1; j < elm.length; j++) {
 				int dst = Integer.parseInt(elm[j]);
 				// TODO:
 				//    Record an edge from source i to destination dst
-				destination[index[i + 1] + (j - 1)] = dst;
-				//System.out.println(destination[index[i + 1] + (j - 1)]);
+				destination[index[i] + (j - 1)] = dst;
 			}
-			index[i+1] = index[i] + elm.length;
-//			if(i == 5)
-//				System.out.println(elm.length);
 		}
 
     }
@@ -95,15 +91,14 @@ public class SparseMatrixCSR extends SparseMatrix {
 
     // Auxiliary function for PageRank calculation
     public void calculateOutDegree(int outdeg[]) {
-	// TODO:
-	//    Calculate the out-degree for every vertex, i.e., the
-	//    number of edges where a vertex appears as a source vertex.
-	//PUT CODE HERE
+		// TODO:
+		//    Calculate the out-degree for every vertex, i.e., the
+		//    number of edges where a vertex appears as a source vertex.
 		for (int i = 0; i < num_vertices; i++) {
-			outdeg[i] = (index[i+1] - index[i]) - 1;
-//			if(i == 5)
-//				System.out.println(outdeg[i]);
+			outdeg[i] = index[i+1] - index[i];
 		}
+		System.out.println(outdeg[0]);
+		System.out.println(outdeg[17]);
     }
     
     // Apply relax once to every edge in the graph
