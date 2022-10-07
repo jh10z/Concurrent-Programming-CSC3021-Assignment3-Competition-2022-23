@@ -80,11 +80,7 @@ public class SparseMatrixCSC extends SparseMatrix {
 				//    Record an edge from source src to destination i
 				source[index[i] + (j - 1)] = src;
 			}
-			if(i == 1)
-				break;
 		}
-		System.out.println(source[index[1]]);
-		System.out.println(source[index[2]-1]); // 0
 	}
 
     // Return number of vertices in the graph
@@ -98,10 +94,9 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
-
-		for (int i = 0; i < index.length - 1; i++) { //use index to get rows
-			for (int j = index[i]; j < index[i+1]; j++) { // iterate through rows values (columns)
+		for (int i = 0; i < num_vertices - 1; i++) { //go through source
+			for (int j = index[i]; j < index[i + 1]; j++) { //if it falls in index its part of node
+				outdeg[source[j]] += 1;
 			}
 		}
     }
@@ -110,7 +105,11 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Iterate over all edges in the sparse matrix and call "relax"
 		//    on each edge.
-		//PUT CODE HERE
+		for (int i = 0; i < num_vertices - 1; i++) { //go through source
+			for (int j = index[i]; j < index[i + 1]; j++) { //if it falls in index its part of node
+				relax.relax(source[j], i);
+			}
+		}
     }
 
     public void ranged_edgemap(Relax relax, int from, int to) {

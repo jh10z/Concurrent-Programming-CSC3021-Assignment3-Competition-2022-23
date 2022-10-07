@@ -77,7 +77,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 				int dst = Integer.parseInt(elm[j]);
 				// TODO:
 				//    Record an edge from source i to destination dst
-				destination[index[i] + (j - 1)] = dst;
+				destination[index[i] + (j-1)] = dst;
 			}
 		}
 
@@ -97,17 +97,19 @@ public class SparseMatrixCSR extends SparseMatrix {
 		for (int i = 0; i < num_vertices; i++) {
 			outdeg[i] = index[i+1] - index[i];
 		}
-		System.out.println(outdeg[0]);
-		System.out.println(outdeg[17]);
     }
     
     // Apply relax once to every edge in the graph
     public void edgemap(Relax relax) {
-	// TODO:
-	//    Iterate over all edges in the sparse matrix and calculate
-	//    the contribution to the new PageRank value of a destination
-	//    vertex made by the corresponding source vertex
-	//PUT CODE HERE
+		// TODO:
+		//    Iterate over all edges in the sparse matrix and calculate
+		//    the contribution to the new PageRank value of a destination
+		//    vertex made by the corresponding source vertex
+		for (int i = 1; i < num_vertices - 1; i++) { //go through source
+			for (int j = index[i]; j < index[i + 1]; j++) { //if it falls in index its part of node
+				relax.relax(i, destination[j]);
+			}
+		}
     }
 
     public void ranged_edgemap(Relax relax, int from, int to) {

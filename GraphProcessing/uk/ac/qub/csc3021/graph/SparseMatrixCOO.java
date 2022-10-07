@@ -17,7 +17,10 @@ import java.util.*;
 // in coordinate format (COO)
 public class SparseMatrixCOO extends SparseMatrix {
     // TODO: variable declarations
-	Tuple[] cooTuple;
+	//Tuple[] cooTuple;
+
+	int[] source;
+	int[] dest;
     int num_vertices; // Number of vertices in the graph
     int num_edges;    // Number of edges in the graph
 
@@ -71,14 +74,17 @@ public class SparseMatrixCOO extends SparseMatrix {
 		num_edges = getNext(rd); // line 3
 
 		// TODO: Allocate memory for the COO representation
-		cooTuple = new Tuple[num_edges];
+		//cooTuple = new Tuple[num_edges];
+		source = new int[num_edges];
+		dest = new int[num_edges];
 
 		int edge[] = new int[2]; //Create an edge, edge in COO is source to destination
 		for(int i = 0; i < num_edges; i++) { //use this to iterate through rows
 			getNextPair(rd, edge);
 			// TODO:
 			// 	Insert edge with source edge[0] and destination edge[1]
-			cooTuple[i] = new Tuple(edge[0], edge[1]);
+			source[i] = edge[0];
+			dest[i] = edge[1];
 		}
 	}
 
@@ -96,22 +102,26 @@ public class SparseMatrixCOO extends SparseMatrix {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
+//		TreeMap<Integer, Integer> vertexCount = new TreeMap<Integer, Integer>();
+//
+//		for (int i = 0; i < num_edges; i++) {
+//			if (!vertexCount.containsKey((Integer) cooTuple[i].source)) {
+//				vertexCount.put(cooTuple[i].source, 1);
+//				continue;
+//			}
+//			vertexCount.put(cooTuple[i].source, vertexCount.get(cooTuple[i].source) + 1);
+//		}
+//
+//		for (Map.Entry<Integer, Integer> node : vertexCount.entrySet()) {
+//			outdeg[node.getKey()] = node.getValue();
+//		}
 
 		for (int i = 0; i < num_edges; i++) {
-			if (!vertexCount.containsKey((Integer) cooTuple[i].source)) {
-				vertexCount.put(cooTuple[i].source, 1);
-				continue;
-			}
-			vertexCount.put(cooTuple[i].source, vertexCount.get(cooTuple[i].source) + 1);
+			//outdeg[cooTuple[i].source] += 1;
+			outdeg[source[i]] += 1;
 		}
-
-		for (Map.Entry<Integer, Integer> node : vertexCount.entrySet()) {
-			outdeg[node.getKey()] = node.getValue();
-			if(node.getKey() == 119583) {
-				System.out.println(node.getKey() + " " + node.getValue());
-			}
-		}
+		System.out.println(outdeg[0]);
+		System.out.println(outdeg[1]);
     }
 
     public void edgemap(Relax relax) {
@@ -119,9 +129,9 @@ public class SparseMatrixCOO extends SparseMatrix {
 		//    Iterate over all edges in the sparse matrix and calculate
 		//    the contribution to the new PageRank value of a destination
 		//    vertex made by the corresponding source vertex
-		//PUT CODE HERE:
-		//relax.relax();
-
+		for (int i = 0; i < num_edges; i++) {
+			relax.relax(source[i], dest[i]);
+		}
     }
 
     public void ranged_edgemap(Relax relax, int from, int to) {
