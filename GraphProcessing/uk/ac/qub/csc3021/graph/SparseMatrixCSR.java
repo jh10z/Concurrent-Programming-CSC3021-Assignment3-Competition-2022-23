@@ -105,7 +105,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 		//    the contribution to the new PageRank value of a destination
 		//    vertex made by the corresponding source vertex
 		for (int i = 1; i < num_vertices - 1; i++) { //go through source
-			for (int j = index[i]; j < index[i + 1]; j++) { //if it falls in index its part of node
+			for (int j = index[i]; j < index[i+1]; j++) { //if it falls in index its part of node
 				relax.relax(i, destination[j]);
 			}
 		}

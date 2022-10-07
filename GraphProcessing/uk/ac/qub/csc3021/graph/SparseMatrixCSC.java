@@ -94,10 +94,8 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-		for (int i = 0; i < num_vertices - 1; i++) { //go through source
-			for (int j = index[i]; j < index[i + 1]; j++) { //if it falls in index its part of node
-				outdeg[source[j]] += 1;
-			}
+		for (int i = 0; i < num_edges - 1; i++) { //go through source
+			outdeg[source[i]] += 1;
 		}
     }
     
