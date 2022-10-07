@@ -99,7 +99,6 @@ public class SparseMatrixCOO extends SparseMatrix {
 		for (int i = 0; i < num_edges; i++) {
 			outdeg[source[i]] += 1;
 		}
-		System.out.println(outdeg[num_vertices - 1]);
     }
 
     public void edgemap(Relax relax) {

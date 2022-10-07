@@ -96,7 +96,6 @@ public class SparseMatrixCSR extends SparseMatrix {
 		for (int i = 0; i < num_vertices; i++) {
 			outdeg[i] = index[i+1] - index[i];
 		}
-		System.out.println(outdeg[num_vertices - 1]);
     }
     
     // Apply relax once to every edge in the graph
