@@ -94,9 +94,10 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
 		//    number of edges where a vertex appears as a source vertex.
-		for (int i = 0; i < num_edges - 1; i++) { //go through source
+		for (int i = 0; i < num_edges; i++) { //go through source
 			outdeg[source[i]] += 1;
 		}
+		System.out.println(outdeg[num_vertices - 1]);
     }
     
     public void edgemap(Relax relax) {

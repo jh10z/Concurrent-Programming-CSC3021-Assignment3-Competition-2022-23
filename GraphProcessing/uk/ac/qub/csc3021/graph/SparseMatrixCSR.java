@@ -77,7 +77,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 				int dst = Integer.parseInt(elm[j]);
 				// TODO:
 				//    Record an edge from source i to destination dst
-				destination[index[i] + (j-1)] = dst;
+				destination[index[i] + (j - 1)] = dst;
 			}
 		}
     }
@@ -96,6 +96,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 		for (int i = 0; i < num_vertices; i++) {
 			outdeg[i] = index[i+1] - index[i];
 		}
+		System.out.println(outdeg[num_vertices - 1]);
     }
     
     // Apply relax once to every edge in the graph
