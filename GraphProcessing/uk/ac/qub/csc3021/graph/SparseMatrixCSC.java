@@ -103,7 +103,7 @@ public class SparseMatrixCSC extends SparseMatrix {
 		// TODO:
 		//    Iterate over all edges in the sparse matrix and call "relax"
 		//    on each edge.
-		for (int i = 0; i < num_vertices - 1; i++) { //go through source
+		for (int i = 0; i < num_vertices; i++) { //go through source
 			for (int j = index[i]; j < index[i+1]; j++) { //if it falls in index its part of node
 				relax.relax(source[j], i);
 			}
