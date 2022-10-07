@@ -71,7 +71,6 @@ public class SparseMatrixCOO extends SparseMatrix {
 		num_edges = getNext(rd); // line 3
 
 		// TODO: Allocate memory for the COO representation
-		//cooTuple = new Tuple[num_edges];
 		source = new int[num_edges];
 		dest = new int[num_edges];
 

@@ -72,12 +72,12 @@ public class SparseMatrixCSR extends SparseMatrix {
 			String elm[] = line.split(" "); //parses columns
 			assert Integer.parseInt(elm[0]) == i : "Error in CSR file";
 
-			index[i + 1] = (index[i] + elm.length) - 1;
+			index[i+1] = (index[i] + elm.length) - 1;
 			for(int j = 1; j < elm.length; j++) {
 				int dst = Integer.parseInt(elm[j]);
 				// TODO:
 				//    Record an edge from source i to destination dst
-				destination[index[i] + (j - 1)] = dst;
+				destination[index[i] + (j-1)] = dst;
 			}
 		}
     }
@@ -104,7 +104,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 		//    Iterate over all edges in the sparse matrix and calculate
 		//    the contribution to the new PageRank value of a destination
 		//    vertex made by the corresponding source vertex
-		for (int i = 1; i < num_vertices - 1; i++) { //go through source
+		for (int i = 0; i < num_vertices - 1; i++) { //go through source
 			for (int j = index[i]; j < index[i+1]; j++) { //if it falls in index its part of node
 				relax.relax(i, destination[j]);
 			}
