@@ -67,16 +67,15 @@ class Driver {
 	// Step 1. Read in the file
 	if( format.equalsIgnoreCase( "CSR" ) ) {
 	    matrix = new SparseMatrixCSR( inputFileCSR );
-	} else if( format.equalsIgnoreCase( "CSC" )
-		   || format.equalsIgnoreCase( "PARCSC" ) ) {
+	} else if( format.equalsIgnoreCase( "CSC" ) ) {
 	    matrix = new SparseMatrixCSC( inputFileCSC );
 	} else if( format.equalsIgnoreCase( "COO" ) ) {
 	    matrix = new SparseMatrixCOO( inputFileCOO );
 	} else if( format.equalsIgnoreCase( "ICHOOSE" ) ) {
 	    // Pick any you want.
 	    // matrix = new SparseMatrixCOO( inputFileCOO );
-	    matrix = new SparseMatrixCSR( inputFileCSR );
-	    // matrix = new SparseMatrixCSC( inputFileCSC );
+	    // matrix = new SparseMatrixCSR( inputFileCSR );
+	    matrix = new SparseMatrixCSC( inputFileCSC );
 	} else {
 	    System.err.println( "Unknown format '" + format + "'" );
             System.exit(43); // Kattis
@@ -85,6 +84,8 @@ class Driver {
 
 	double tm_input = (double)(System.nanoTime() - tm_start) * 1e-9;
 	System.err.println( "Reading input: " + tm_input + " seconds" );
+	System.err.println( "Number of vertices: " + matrix.getNumVertices() );
+	System.err.println( "Number of edges: " + matrix.getNumEdges() );
 	tm_start = System.nanoTime();
 
 	// What facilities for parallel execution do we have?
@@ -92,10 +93,10 @@ class Driver {
 	// - ParallelContextSingleThread: fully implemented
 	// - ParallelContextSimple: needs to be completed by yourself when
 	//   asked for in the assignment brief.
-	// if( format.equalsIgnoreCase( "PARCSC" ) )
-	// ParallelContextHolder.set( new ParallelContextSimple(num_threads) );
-	// else
-	ParallelContextHolder.set( new ParallelContextSingleThread() );
+	if( format.equalsIgnoreCase( "ICHOOSE" ) )
+	    ParallelContextHolder.set( new ParallelContextSimple(num_threads) );
+	else
+	    ParallelContextHolder.set( new ParallelContextSingleThread() );
 
 	try {
 	    if( algorithm.equalsIgnoreCase( "PR" ) ) {
@@ -124,7 +125,8 @@ class Driver {
 
 		double tm_write = (double)(System.nanoTime() - tm_start) * 1e-9;
 		System.err.println( "Writing file: " + tm_write + " seconds" );
-	    } else if( algorithm.equalsIgnoreCase( "DS" ) ) {
+	    } else if( algorithm.equalsIgnoreCase( "DS" )
+		|| algorithm.equalsIgnoreCase( "OPT" ) ) {
 		// Step 2. Calculate connected components of the graph
 		int CC[] = DisjointSetCC.compute( matrix );
 
@@ -153,6 +155,8 @@ class Driver {
 		= new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" );
 	    BufferedWriter wr = new BufferedWriter( os );
 	    writeToBuffer( wr, v );
+	    wr.close();
+	    os.close();
 	} catch( FileNotFoundException e ) {
 	    System.err.println( "File not found: " + e );
 	    return;
@@ -176,6 +180,8 @@ class Driver {
 		= new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" );
 	    BufferedWriter wr = new BufferedWriter( os );
 	    writeToBuffer( wr, v );
+	    wr.close();
+	    os.close();
 	} catch( FileNotFoundException e ) {
 	    System.err.println( "File not found: " + e );
 	    return;

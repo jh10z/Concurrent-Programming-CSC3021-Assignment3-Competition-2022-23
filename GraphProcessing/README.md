@@ -7,7 +7,7 @@ The code is complete except for the implementation of the data structure that re
 
 Graph data sets are available from http://www.eeecs.qub.ac.uk/~H.Vandierendonck/CSC3021/graphs/. These are specified in the file format described in the assignment brief.
 
-The programs can be called using one of two drivers: DriverA2.java (for DOMjudge submissions for the second assignment) and DriverA3.java (for DOMjudge submissions for the third assignment). These drivers require command-line arguments to specify what to do (the problem: PageRank or Connected Components; the graph data structure; number of threads to use).
+The programs can be called using a driver program called Driver.java. This driver requires command-line arguments to specify what to do (the problem: PageRank or Connected Components; the graph data structure; number of threads to use).
 
 Command line arguments are easily specified when running the programs on the command line. For those with a UNIX-like setup, there is also a Makefile to compile the programs and to create a ZIP file for submission on the DOMjudge server.
 
@@ -18,15 +18,11 @@ The code contains assertions, which are checks for correctness that are executed
 The command line arguments are as follows:
 
 When compiling the DriverA2 file
-% javac DriverA2.java
+% javac Driver.java
 % java -ea Driver
-Usage: java Driver format inputfile algorithm numthreads outputfile
-% java Driver COO /path/to/graph.COO (pr|cc) 1 /path/to/outputfile.txt
+Usage: java Driver algorithm num-threads outputfile format inputfiles...
+% java Driver (pr|cc) 1 /path/to/outputfile.txt COO /path/to/graph.COO
 Replace the path /path/to/graph.COO with the directory and filename for the graph file of your choice. Choose one of pr or cc.  Specify a file to store the program output (either PageRank values or histogram of cluster sizes). This code will execute the program on a single thread of execution.
-% java -ea Driver PARCSC /path/to/graph.CSC (pr|cc) 4 /path/to/outputfile.txt
 
-When compiling the DriverA3 file
-% javac DriverA3.java
-% java -ea Driver
-Usage: java Driver inputfile-COO inputfile-CSR inputfile-CSC algorithm num-threads outputfile
-% java -ea Driver /path/to/graph.COO /path/to/graph.CSR /path/to/graph.CSC (pr|cc) 8 /path/to/outputfile.txt
+This will execute using 4 threads, once you developed the code.
+% java Driver (pr|cc) 4 /path/to/outputfile.txt PARCSC /path/to/graph.CSC
