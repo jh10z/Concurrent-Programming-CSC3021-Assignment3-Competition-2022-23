@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class DisjointSetCC {
     private static class DSCCRelax implements Relax {
 	DSCCRelax( AtomicIntegerArray parent_ ) {
-	    ...
+	    //...
 	}
 
 	public void relax( int src, int dst ) {
@@ -15,16 +15,20 @@ public class DisjointSetCC {
 	}
 
 	public int find( int x ) {
-	    ...
+	    //...
+		return 0; //Self-Note: Added in for now
 	}
 	
 	private boolean sameSet( int x, int y ) {
+		//...
+		return false; //Self-Note: Added in for now
 	}
 
 	private boolean union( int x, int y ) {
+		//...
+		return false; //Self-Note: Added in for now
 	}
 
-	    return x < y;
 	// Variable declarations
 	private AtomicIntegerArray parent;
     };
@@ -38,10 +42,10 @@ public class DisjointSetCC {
 
 	for( int i=0; i < n; ++i ) {
 	    // Each vertex is a set on their own
-	    ...
+	    //...
 	}
 
-	// DSCCRelax DSCCrelax = new DSCCRelax( parent );
+	DSCCRelax DSCCrelax = new DSCCRelax( parent );
 
 	double tm_init = (double)(System.nanoTime() - tm_start) * 1e-9;
 	System.err.println( "Initialisation: " + tm_init + " seconds" );
