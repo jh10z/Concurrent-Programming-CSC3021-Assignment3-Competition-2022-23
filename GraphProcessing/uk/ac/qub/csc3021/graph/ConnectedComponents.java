@@ -79,20 +79,28 @@ public class ConnectedComponents {
 	//    and map component IDs to narrow domain
 	int ncc = 0;
 	int remap[] = new int[n];
-	for( int i=0; i < n; ++i )
+	for( int i=0; i < n; ++i ) {
+	    // "unswap" values such that we can identify representatives
+	    if( x[i] == 0 )
+		x[i] = lg;
+	    else if( x[i] == lg )
+		x[i] = 0;
 	    if( x[i] == i )
 		remap[i] = ncc++;
+	}
 
 	if( verbose )
 	    System.err.println( "Number of components: " + ncc );
 
 	// 2. Calculate size of each component
 	int sizes[] = new int[ncc];
-	for( int i=0; i < n; ++i )
+	for( int i=0; i < n; ++i ) {
 	    ++sizes[remap[x[i]]];
+	}
 
 	if( verbose )
 	    System.err.println( "ConnectedComponents: " + ncc + " components" );
+
 
 	return sizes;
     }
