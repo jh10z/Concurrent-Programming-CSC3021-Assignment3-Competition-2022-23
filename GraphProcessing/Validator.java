@@ -28,11 +28,13 @@ class Validator {
 	String format = args[0];
 	String inputFile = args[1];
 	String algorithm = args[2];
+	String outputFile = args[3];
 
 	// Tell us what you're doing
 	System.err.println( "Format: " + format );
 	System.err.println( "Input file: " + inputFile );
 	System.err.println( "Algorithm: " + algorithm );
+	System.err.println( "Output file: " + outputFile );
 
 	long tm_start = System.nanoTime();
 
@@ -61,7 +63,8 @@ class Validator {
 		// Read computed values
 		int n = matrix.getNumVertices();
 		double values[] = new double[n];
-		readFromStdin( values, n );
+		//readFromStdin( values, n );
+		readFromFile(outputFile, values, n);
 		
 		// Validate PageRank values for the graph
 		PageRank.validate( matrix, values );
@@ -71,7 +74,8 @@ class Validator {
 		    // Read computed values
 		    int n = 4;
 		    int cc[] = new int[n];
-		    readFromStdin( cc, n );
+		    //readFromStdin( cc, n );
+			readFromFile(outputFile, cc, n);
 		
 		    boolean v = ( cc[0] == 125 || cc[0] == 1 )
 			&& ( cc[1] == 125 || cc[1] == 1 )
@@ -89,7 +93,8 @@ class Validator {
 		    // Read computed values
 		    int n = 187;
 		    int cc[] = new int[n];
-		    readFromStdin( cc, n );
+		    //readFromStdin( cc, n );
+			readFromFile(outputFile, cc, n);
 		
 		    int k = 0;
 		    int v = matrix.getNumVertices();
