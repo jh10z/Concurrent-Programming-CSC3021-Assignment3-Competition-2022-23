@@ -21,7 +21,7 @@ public class ParallelContextSimple extends ParallelContext {
         int numOfThreads = getNumThreads();
         int numOfVertices = matrix.getNumVertices();
         //
-        int range = numOfVertices / numOfThreads + 1;
+        int range = numOfVertices / numOfThreads;
         int remainder = numOfVertices % numOfThreads;
 
         int start = 0, end = 0;
