@@ -75,7 +75,7 @@ class Driver {
 	    // Pick any you want.
 	    // matrix = new SparseMatrixCOO( inputFileCOO );
 	    // matrix = new SparseMatrixCSR( inputFileCSR );
-	    matrix = new SparseMatrixCSC( inputFileCSC );
+	    matrix = new SparseMatrixCSC(inputFileCSC);
 	} else {
 	    System.err.println( "Unknown format '" + format + "'" );
             System.exit(43); // Kattis

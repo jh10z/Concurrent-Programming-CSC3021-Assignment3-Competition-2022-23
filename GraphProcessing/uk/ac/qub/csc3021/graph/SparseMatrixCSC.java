@@ -117,6 +117,11 @@ public class SparseMatrixCSC extends SparseMatrix {
 		//    Iterate over partition indicated by from...to and calculate
 		//    the contribution to the new PageRank value of a destination
 		//    vertex made by the corresponding source vertex
+		for (int i = from; i < to; i++) { //go through source
+			for (int j = index[i]; j < index[i+1]; j++) { //if it falls in index its part of node
+				relax.relax(source[j], i);
+			}
+		}
     }
 }
 
