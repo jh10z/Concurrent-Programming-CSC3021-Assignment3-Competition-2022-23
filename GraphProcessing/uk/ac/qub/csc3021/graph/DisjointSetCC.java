@@ -11,6 +11,7 @@ public class DisjointSetCC {
 		}
 
 		public void relax(int src, int dst) {
+			//sameSet(src, dst);
 			union(src, dst);
 		}
 
@@ -20,6 +21,18 @@ public class DisjointSetCC {
 				u = parent.get(u);
 			}
 			return u;
+
+			//splitting
+//			int u = x;
+//			while(true) {
+//				int v = parent.get(u);
+//				int w = parent.get(v);
+//				if (v == w) return v;
+//				else {
+//					cas(parent.get(u), v, w);
+//					u = v;
+//				}
+//			}
 		}
 
 		private boolean sameSet(int x, int y) {
@@ -37,7 +50,7 @@ public class DisjointSetCC {
 			}
 		}
 
-		private boolean union(int x, int y) {
+		private boolean union(int x, int y) { //link
 			int u = x;
 			int v = y;
 
@@ -45,25 +58,16 @@ public class DisjointSetCC {
 				u = find(u);
 				v = find(v);
 				if(u < v) {
-					if(cas(parent.get(u), u, v)) {
+					if(parent.compareAndSet(parent.get(u), u, v)) {
 						return false;
 					}
 				}
 				else if (u == v) {
 					return true;
 				}
-				else if (cas(parent.get(v), v, u)) {
+				else if (parent.compareAndSet(parent.get(v), v, u)) {
 					return false;
 				}
-			}
-		}
-
-		private synchronized boolean cas(int x, int y, int z) {
-			if(x == y) {
-				parent.set(x, z);
-				return true;
-			} else {
-				return false;
 			}
 		}
 
@@ -92,7 +96,7 @@ public class DisjointSetCC {
 		ParallelContext context = ParallelContextHolder.get();
 
 		// 1. Make pass over graph
-		context.edgemap( matrix, DSCCrelax );
+		context.edgemap(matrix, DSCCrelax);
 
 		double tm_step = (double)(System.nanoTime() - tm_start) * 1e-9;
 		if(verbose) {
