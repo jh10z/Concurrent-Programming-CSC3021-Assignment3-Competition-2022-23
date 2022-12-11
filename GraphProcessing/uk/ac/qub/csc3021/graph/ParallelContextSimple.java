@@ -6,7 +6,18 @@ public class ParallelContextSimple extends ParallelContext {
 
     private ArrayList<ThreadSimple> threads = new ArrayList<ThreadSimple>();
     private class ThreadSimple extends Thread {
-        public void run(SparseMatrix matrix, Relax relax, int from, int to) {
+        SparseMatrix matrix;
+        Relax relax;
+        int from;
+        int to;
+
+        public ThreadSimple (SparseMatrix matrix, Relax relax, int start, int end) {
+            this.matrix = matrix;
+            this.relax = relax;
+            this.from = start;
+            this.to = end;
+        }
+        public void run() {
             matrix.ranged_edgemap(relax, from, to);
         }
     };
@@ -34,8 +45,8 @@ public class ParallelContextSimple extends ParallelContext {
         int start = 0, end = 0;
         for (int i = 0; i < numOfThreads; i++) {
             end = start + (remainder-- > 0 ? range + 1 : range); // distribute remainder at earliest if there is any left
-            ThreadSimple thread = new ThreadSimple();
-            thread.run(matrix, relax, start, end);
+            ThreadSimple thread = new ThreadSimple(matrix, relax, start, end);
+            thread.start();
             threads.add(thread);
             start = end; // reassign for next
         }
