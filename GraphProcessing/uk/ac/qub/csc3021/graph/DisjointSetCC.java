@@ -44,7 +44,7 @@ public class DisjointSetCC {
 			while(true) {
 				u = find(u);
 				v = find(v);
-				if(!sameSet(u,v)) {
+				if(u < v) {
 					if(cas(parent.get(u), u, v)) {
 						return false;
 					}
