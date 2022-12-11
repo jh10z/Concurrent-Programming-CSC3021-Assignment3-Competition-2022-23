@@ -1,6 +1,10 @@
 package uk.ac.qub.csc3021.graph;
 
+import java.util.ArrayList;
+
 public class ParallelContextSimple extends ParallelContext {
+
+    private ArrayList<ThreadSimple> threads = new ArrayList<ThreadSimple>();
     private class ThreadSimple extends Thread {
         public void run(SparseMatrix matrix, Relax relax, int from, int to) {
             matrix.ranged_edgemap(relax, from, to);
@@ -12,6 +16,9 @@ public class ParallelContextSimple extends ParallelContext {
     }
 
     public void terminate() {
+        for (ThreadSimple thread : threads) {
+            thread.interrupt();
+        }
     }
 
     // The edgemap method for Q3 should create threads, which each process
@@ -29,7 +36,15 @@ public class ParallelContextSimple extends ParallelContext {
             end = start + (remainder-- > 0 ? range + 1 : range); // distribute remainder at earliest if there is any left
             ThreadSimple thread = new ThreadSimple();
             thread.run(matrix, relax, start, end);
+            threads.add(thread);
             start = end; // reassign for next
+        }
+        try {
+            for (ThreadSimple thread : threads) {
+                thread.join();
+            }
+        } catch (InterruptedException e) {
+            System.out.println(e.toString());
         }
     }
 }
