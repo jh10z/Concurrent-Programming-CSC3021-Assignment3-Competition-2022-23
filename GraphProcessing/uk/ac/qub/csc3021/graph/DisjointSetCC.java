@@ -26,7 +26,7 @@ public class DisjointSetCC {
 			int u = x;
 			int v = y;
 			while(true) {
-				u = find(x);
+				u = find(u);
 				v = find(v);
 				if(u == v) {
 					return true;
@@ -42,28 +42,25 @@ public class DisjointSetCC {
 			int v = y;
 
 			while(true) {
-				u = find(x);
+				u = find(u);
 				v = find(v);
-				if(u == v) {
-					return true;
-				}
 				if(u < v) {
-					if(CAS(parent.get(u), v, u)) {
+					if(cas(parent.get(u), u, v)) {
 						return false;
 					}
 				}
 				else if (u == v) {
 					return true;
 				}
-				else if (CAS(parent.get(v), v, u)) {
+				else if (cas(parent.get(v), v, u)) {
 					return false;
 				}
 			}
 		}
 
-		private synchronized boolean CAS(int x, int y, int z) {
+		private synchronized boolean cas(int x, int y, int z) {
 			if(x == y) {
-				x = z;
+				parent.set(x, z);
 				return true;
 			} else {
 				return false;
@@ -81,6 +78,7 @@ public class DisjointSetCC {
 		final AtomicIntegerArray parent = new AtomicIntegerArray(n);
 		final boolean verbose = true;
 
+		//Make Set
 		for(int i = 0; i < n; ++i) {
 			parent.set(i, i);
 		}
