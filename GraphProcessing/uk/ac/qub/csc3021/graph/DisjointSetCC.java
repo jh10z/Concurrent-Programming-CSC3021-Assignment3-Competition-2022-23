@@ -16,11 +16,11 @@ public class DisjointSetCC {
 		}
 
 		public int find(int x) {
-			int u = x;
-			while(u != parent.get(u)) {
-				u = parent.get(u);
-			}
-			return u;
+//			int u = x;
+//			while(u != parent.get(u)) {
+//				u = parent.get(u);
+//			}
+//			return u;
 
 			//splitting
 //			int u = x;
@@ -29,10 +29,23 @@ public class DisjointSetCC {
 //				int w = parent.get(v);
 //				if (v == w) return v;
 //				else {
-//					cas(parent.get(u), v, w);
+//					parent.compareAndSet(parent.get(u), v, w);
 //					u = v;
 //				}
 //			}
+
+			//
+			int u = x;
+			while(true) {
+				int v = parent.get(u);
+				int w = parent.get(v);
+				if(v == w) return v;
+				else {
+					parent.compareAndSet(parent.get(u), v, w);
+					u = parent.get(u);
+				}
+			}
+
 		}
 
 		private boolean sameSet(int x, int y) {
