@@ -16,13 +16,14 @@ public class DisjointSetCC {
 		}
 
 		public int find(int x) {
+			//no path compression
 //			int u = x;
 //			while(u != parent.get(u)) {
 //				u = parent.get(u);
 //			}
 //			return u;
 
-			//splitting
+			//path splitting
 //			int u = x;
 //			while(true) {
 //				int v = parent.get(u);
@@ -34,7 +35,7 @@ public class DisjointSetCC {
 //				}
 //			}
 
-			//
+			//path halving
 			int u = x;
 			while(true) {
 				int v = parent.get(u);
@@ -45,7 +46,6 @@ public class DisjointSetCC {
 					u = parent.get(u);
 				}
 			}
-
 		}
 
 		private boolean sameSet(int x, int y) {
@@ -125,7 +125,9 @@ public class DisjointSetCC {
 		int remap[] = new int[n];
 		for (int i = 0; i < n; ++i)
 			if (DSCCrelax.find(i) == i) {
+				//System.out.println("Component: " + i);
 				remap[i] = ncc++;
+				//System.out.println("Component Remap: " + remap[i]);
 			}
 
 		if(verbose) {
