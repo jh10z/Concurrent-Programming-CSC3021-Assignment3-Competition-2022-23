@@ -16,12 +16,21 @@ public class DisjointSetCC {
 		}
 
 		public int find(int x) {
-			//no path compression
+			//path compression (online research)
 			int u = x;
-			while(u != parent.get(u)) {
+			while(u != parent.get(u))
+			{
+				parent.set(u, parent.get(parent.get(u))); //set u to grandparent (halving path length)
 				u = parent.get(u);
 			}
 			return u;
+
+			//no path compression
+//			int u = x;
+//			while(u != parent.get(u)) {
+//				u = parent.get(u);
+//			}
+//			return u;
 
 			//path splitting
 //			int u = x;
