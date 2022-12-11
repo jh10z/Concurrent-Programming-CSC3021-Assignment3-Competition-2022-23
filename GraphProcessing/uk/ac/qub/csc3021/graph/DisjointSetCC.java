@@ -25,6 +25,16 @@ public class DisjointSetCC {
 			}
 			return u;
 
+//			int u = x;
+//			while(u != parent.get(u))
+//			{
+//				int v = parent.get(u);
+//				int w = parent.get(v);
+//				parent.set(u, w); //set u to grandparent (halving path length)
+//				u = parent.get(u);
+//			}
+//			return u;
+
 			//no path compression
 //			int u = x;
 //			while(u != parent.get(u)) {
