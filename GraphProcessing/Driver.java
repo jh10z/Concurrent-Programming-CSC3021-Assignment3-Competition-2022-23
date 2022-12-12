@@ -62,6 +62,11 @@ class Driver {
 
 	long tm_start = System.nanoTime();
 
+	if( format.equalsIgnoreCase( "ICHOOSE" ) )
+		ParallelContextHolder.set( new ParallelContextSimple(num_threads) );
+	else
+		ParallelContextHolder.set( new ParallelContextSingleThread() );
+
 	SparseMatrix matrix;
 
 	// Step 1. Read in the file
@@ -93,10 +98,6 @@ class Driver {
 	// - ParallelContextSingleThread: fully implemented
 	// - ParallelContextSimple: needs to be completed by yourself when
 	//   asked for in the assignment brief.
-	if( format.equalsIgnoreCase( "ICHOOSE" ) )
-	    ParallelContextHolder.set( new ParallelContextSimple(num_threads) );
-	else
-	    ParallelContextHolder.set( new ParallelContextSingleThread() );
 
 	try {
 	    if( algorithm.equalsIgnoreCase( "PR" ) ) {

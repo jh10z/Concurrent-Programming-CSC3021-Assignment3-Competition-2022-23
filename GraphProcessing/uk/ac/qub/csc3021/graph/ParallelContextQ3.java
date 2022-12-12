@@ -1,4 +1,3 @@
-/*
 package uk.ac.qub.csc3021.graph;
 
 import java.util.concurrent.*;
@@ -34,4 +33,3 @@ public class ParallelContextQ3 extends ParallelContext {
         // use matrix.ranged_edgemap(relax, from, to); in each thread
     }
 }
-*/

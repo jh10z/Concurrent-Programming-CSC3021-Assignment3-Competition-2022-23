@@ -38,7 +38,7 @@ public class ParallelContextSimple extends ParallelContext {
 	    // use matrix.ranged_edgemap(relax, from, to); in each thread
         int numOfThreads = getNumThreads();
         int numOfVertices = matrix.getNumVertices();
-        //
+
         int range = numOfVertices / numOfThreads;
         int remainder = numOfVertices % numOfThreads;
 

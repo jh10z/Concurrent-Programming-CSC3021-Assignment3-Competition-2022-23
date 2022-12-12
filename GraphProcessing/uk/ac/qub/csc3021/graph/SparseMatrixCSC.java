@@ -17,13 +17,27 @@ import java.util.TreeMap;
 // in compressed sparse columns format (CSC). The incoming edges for each
 // vertex are listed.
 public class SparseMatrixCSC extends SparseMatrix {
+
+	public class ThreadSimple extends Thread {
+
+		public ThreadSimple() {
+
+		}
+		public void run() {
+
+		}
+
+	}
+
     // TODO: variable declarations
 	int[] index;
 	int[] source;
     int num_vertices; // Number of vertices in the graph
     int num_edges;    // Number of edges in the graph
+	int num_threads;
 
     public SparseMatrixCSC(String file) {
+		this.num_threads = ParallelContextHolder.get().getNumThreads();
 		try {
 			InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			BufferedReader rd = new BufferedReader(is);
@@ -49,6 +63,7 @@ public class SparseMatrixCSC extends SparseMatrix {
     }
 
     void readFile(BufferedReader rd) throws Exception {
+
 		String line = rd.readLine();
 		if(line == null) {
 			throw new Exception("premature end of file");
@@ -108,6 +123,7 @@ public class SparseMatrixCSC extends SparseMatrix {
 				relax.relax(source[j], i);
 			}
 		}
+		System.out.println(num_threads);
     }
 
     public void ranged_edgemap(Relax relax, int from, int to) {
