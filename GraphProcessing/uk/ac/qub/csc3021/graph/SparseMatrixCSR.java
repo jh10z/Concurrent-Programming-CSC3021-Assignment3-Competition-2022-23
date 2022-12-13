@@ -115,5 +115,8 @@ public class SparseMatrixCSR extends SparseMatrix {
 	// Only implement for parallel/concurrent processing
 	// if you find it useful
     }
+
+	public void processEdgemapOnInput(Relax relax, int from, int to) throws Exception {
+	}
 }
 

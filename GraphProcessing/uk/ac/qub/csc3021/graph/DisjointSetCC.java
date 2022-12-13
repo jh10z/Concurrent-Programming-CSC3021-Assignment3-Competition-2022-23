@@ -27,46 +27,6 @@ public class DisjointSetCC {
 				u = parent.get(u);
 			}
 			return u;
-//			int u = x;
-//			while(u != parent.get(u))
-//			{
-//				int v = parent.get(u);
-//				int w = parent.get(v);
-//				parent.set(u, w); //set u to grandparent (halving path length)
-//				u = parent.get(u);
-//			}
-//			return u;
-
-			//no path compression
-//			int u = x;
-//			while(u != parent.get(u)) {
-//				u = parent.get(u);
-//			}
-//			return u;
-
-			//path splitting
-//			int u = x;
-//			while(true) {
-//				int v = parent.get(u);
-//				int w = parent.get(v);
-//				if (v == w) return v;
-//				else {
-//					parent.compareAndSet(parent.get(u), v, w);
-//					u = v;
-//				}
-//			}
-
-			//path halving
-//			int u = x;
-//			while(true) {
-//				int v = parent.get(u);
-//				int w = parent.get(v);
-//				if(v == w) return v;
-//				else {
-//					parent.compareAndSet(parent.get(u), v, w);
-//					u = parent.get(u);
-//				}
-//			}
 		}
 
 		private boolean sameSet(int x, int y) {
@@ -124,8 +84,8 @@ public class DisjointSetCC {
 //		}
 
 		// Variable declarations
-		private AtomicIntegerArray parent;
-		private AtomicIntegerArray subset;
+		private final AtomicIntegerArray parent;
+		private final AtomicIntegerArray subset;
 	};
 
     public static int[] compute(SparseMatrix matrix) {
@@ -139,7 +99,7 @@ public class DisjointSetCC {
 		//Make Set
 		for(int i = 0; i < n; ++i) {
 			parent.set(i, i);
-			subset.set(i, i);
+			//subset.set(i, i);
 		}
 
 		DSCCRelax DSCCrelax = new DSCCRelax(parent, subset);

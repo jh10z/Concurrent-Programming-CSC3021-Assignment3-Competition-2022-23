@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class ParallelContextSimple extends ParallelContext {
 
-    private ArrayList<ThreadSimple> threads = new ArrayList<ThreadSimple>();
-    private class ThreadSimple extends Thread {
+    private final ArrayList<ThreadSimple> threads = new ArrayList<>();
+    private static class ThreadSimple extends Thread {
         SparseMatrix matrix;
         Relax relax;
         int from;
@@ -18,9 +18,13 @@ public class ParallelContextSimple extends ParallelContext {
             this.to = end;
         }
         public void run() {
-            matrix.ranged_edgemap(relax, from, to);
+            try {
+                matrix.processEdgemapOnInput(relax, from, to);
+            } catch(Exception e) {
+                System.err.println("Exception: " + e);
+            }
         }
-    };
+    }
 
     public ParallelContextSimple(int num_threads_) {
 	    super(num_threads_);
@@ -42,7 +46,7 @@ public class ParallelContextSimple extends ParallelContext {
         int range = numOfVertices / numOfThreads;
         int remainder = numOfVertices % numOfThreads;
 
-        int start = 0, end = 0;
+        int start = 0, end;
         for (int i = 0; i < numOfThreads; i++) {
             end = start + (remainder-- > 0 ? range + 1 : range); // distribute remainder at earliest if there is any left
             ThreadSimple thread = new ThreadSimple(matrix, relax, start, end);
@@ -55,7 +59,7 @@ public class ParallelContextSimple extends ParallelContext {
                 thread.join();
             }
         } catch (InterruptedException e) {
-            System.out.println(e.toString());
+            System.err.println("Interrupted Exception: " + e);
         }
     }
 }

@@ -115,6 +115,10 @@ public class SparseMatrixCOO extends SparseMatrix {
 		// if you find it useful
 		// CHECK IF YOU NEED TO PUT CODE HERE
     }
+
+	public void processEdgemapOnInput(Relax relax, int from, int to) {
+
+	}
 }
 
 

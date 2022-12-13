@@ -18,5 +18,7 @@ public abstract class SparseMatrix {
     // Perform part of a sweep, visiting only a subset of the edges. This
     // method is used only in Assignment 2.
     public abstract void ranged_edgemap(Relax relax, int from, int to);
+
+    public abstract void processEdgemapOnInput(Relax relax, int from, int to) throws Exception;
 }
 

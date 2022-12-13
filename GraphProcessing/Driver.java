@@ -73,7 +73,7 @@ class Driver {
 	if( format.equalsIgnoreCase( "CSR" ) ) {
 	    matrix = new SparseMatrixCSR( inputFileCSR );
 	} else if( format.equalsIgnoreCase( "CSC" ) ) {
-	    matrix = new SparseMatrixCSC( inputFileCSC );
+	    matrix = new SparseMatrixCSC( inputFileCSC);
 	} else if( format.equalsIgnoreCase( "COO" ) ) {
 	    matrix = new SparseMatrixCOO( inputFileCOO );
 	} else if( format.equalsIgnoreCase( "ICHOOSE" ) ) {
