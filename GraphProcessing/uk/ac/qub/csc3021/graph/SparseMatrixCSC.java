@@ -8,27 +8,13 @@ import java.util.TreeMap;
 // vertex are listed.
 public class SparseMatrixCSC extends SparseMatrix {
 
-	public class ThreadSimple extends Thread {
-
-		public ThreadSimple() {
-
-		}
-		public void run() {
-
-		}
-
-	}
-
 	int[] index;
 	int[] source;
-    int num_vertices; // Number of vertices in the graph
-    int num_edges;    // Number of edges in the graph
-	//int num_threads;
-
+    int num_vertices;
+    int num_edges;
 	BufferedReader rd;
 
     public SparseMatrixCSC(String file) {
-		//this.num_threads = ParallelContextHolder.get().getNumThreads();
 		try {
 			InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			this.rd = new BufferedReader(is);
@@ -93,15 +79,8 @@ public class SparseMatrixCSC extends SparseMatrix {
 
 	public void processEdgemapOnInput(Relax relax, int from, int to) throws Exception {
 		for(int i = from; i < to; i++) {
-			String line = rd.readLine();
-			if(line == null) {
-				throw new Exception("premature end of file");
-			}
-			String[] elm = line.split(" ");
-			assert Integer.parseInt(elm[0]) == i : "Error in CSC file";
-
+			String[] elm = rd.readLine().split(" ");
 			for(int j = 1; j < elm.length; j++) {
-				//System.out.println(Integer.parseInt(elm[j]) + " " + i);
 				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
 			}
 		}

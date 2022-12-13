@@ -36,10 +36,7 @@ public class ParallelContextSimple extends ParallelContext {
         }
     }
 
-    // The edgemap method for Q3 should create threads, which each process
-    // one graph partition, then wait for them to complete.
     public void edgemap(SparseMatrix matrix, Relax relax) {
-	    // use matrix.ranged_edgemap(relax, from, to); in each thread
         int numOfThreads = getNumThreads();
         int numOfVertices = matrix.getNumVertices();
 
@@ -48,7 +45,7 @@ public class ParallelContextSimple extends ParallelContext {
 
         int start = 0, end;
         for (int i = 0; i < numOfThreads; i++) {
-            end = start + (remainder-- > 0 ? range + 1 : range); // distribute remainder at earliest if there is any left
+            end = start + (remainder-- > 0 ? range + 1 : range);
             ThreadSimple thread = new ThreadSimple(matrix, relax, start, end);
             thread.start();
             threads.add(thread);
