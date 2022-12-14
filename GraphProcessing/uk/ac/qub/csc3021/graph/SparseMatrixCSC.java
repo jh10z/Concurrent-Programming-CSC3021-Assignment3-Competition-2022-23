@@ -13,11 +13,13 @@ public class SparseMatrixCSC extends SparseMatrix {
     int num_vertices;
     int num_edges;
 	BufferedReader rd;
+	String file;
 
     public SparseMatrixCSC(String file) {
 		try {
 			InputStreamReader is = new InputStreamReader(new FileInputStream(file), "UTF-8");
 			this.rd = new BufferedReader(is);
+			this.file = file;
 			readFile();
 		} catch(FileNotFoundException e) {
 			System.err.println( "File not found: " + e );

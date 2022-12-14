@@ -1,6 +1,8 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 // Calculate the connected components using disjoint set data structure
 // This algorithm only works correctly for undirected graphs
@@ -15,14 +17,11 @@ public class DisjointSetCC {
 			union(src, dst);
 		}
 
-		public int find(int x) {
-			int u = x;
-			while(u != parent.get(u))
-			{
-				parent.set(u, parent.get(parent.get(u))); //set u to grandparent (halving path length)
-				u = parent.get(u);
+		public int find(int x) { //recursive path halving
+			if(parent.get(x) != x) {
+				parent.set(x, find(parent.get(x)));
 			}
-			return u;
+			return parent.get(x);
 		}
 
 		private void union(int a, int b) { //union by rank
@@ -30,13 +29,16 @@ public class DisjointSetCC {
 			int y = find(b);
 
 			if(x != y) {
-				if(rank.get(x) > rank.get(y)) {
-					parent.set(y, x);
-				} else if(rank.get(x) < rank.get(y)) {
+				int rank_x = rank.get(x);
+				int rank_y = rank.get(y);
+
+				if(rank_x < rank_y) {
 					parent.set(x, y);
+				} else if(rank_x > rank_y) {
+					parent.set(y, x);
 				} else {
 					parent.set(x, y);
-					rank.set(y, rank.get(y) + 1);
+					rank.set(y, ++rank_y);
 				}
 			}
 		}
@@ -44,7 +46,7 @@ public class DisjointSetCC {
 		// Variable declarations
 		private final AtomicIntegerArray parent;
 		private final AtomicIntegerArray rank;
-	};
+	}
 
     public static int[] compute(SparseMatrix matrix) {
 		long tm_start = System.nanoTime();
@@ -75,14 +77,13 @@ public class DisjointSetCC {
 		if(verbose) {
 			System.err.println("processing time=" + tm_step + " seconds");
 		}
-		tm_start = System.nanoTime();
 
 		// Post-process the labels
 
 		// 1. Count number of components
 		//    and map component IDs to narrow domain
 		int ncc = 0;
-		int remap[] = new int[n];
+		int[] remap = new int[n];
 		for (int i = 0; i < n; ++i)
 			if (DSCCrelax.find(i) == i) {
 				//System.out.println("Component: " + i);
@@ -95,7 +96,7 @@ public class DisjointSetCC {
 		}
 
 		// 2. Calculate size of each component
-		int sizes[] = new int[ncc];
+		int[] sizes = new int[ncc];
 		for(int i = 0; i < n; ++i) {
 			++sizes[remap[DSCCrelax.find(i)]];
 		}
