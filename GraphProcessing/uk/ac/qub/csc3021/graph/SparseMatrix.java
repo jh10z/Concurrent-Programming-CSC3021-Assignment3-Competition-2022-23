@@ -1,11 +1,16 @@
 package uk.ac.qub.csc3021.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class SparseMatrix {
     // Return number of vertices in the graph
     public abstract int getNumVertices();
 
     // Return number of edges in the graph
     public abstract int getNumEdges();
+
+    public abstract String getFile();
 
     // Auxiliary in preparation of PageRank iteration: pre-calculate the
     // out-degree (number of outgoing edges) for each vertex
@@ -19,6 +24,6 @@ public abstract class SparseMatrix {
     // method is used only in Assignment 2.
     public abstract void ranged_edgemap(Relax relax, int from, int to);
 
-    public abstract void processEdgemapOnInput(Relax relax, int from, int to) throws Exception;
+    public abstract void processEdgemapOnInput(Relax relax, List<String> workload);
 }
 

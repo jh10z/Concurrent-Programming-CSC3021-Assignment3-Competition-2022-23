@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 // This class represents the adjacency matrix of a graph as a sparse matrix
 // in compressed sparse rows format (CSR), where a row index corresponds to
@@ -88,7 +90,12 @@ public class SparseMatrixCSR extends SparseMatrix {
     // Return number of edges in the graph
     public int getNumEdges() { return num_edges; }
 
-    // Auxiliary function for PageRank calculation
+	@Override
+	public String getFile() {
+		return null;
+	}
+
+	// Auxiliary function for PageRank calculation
     public void calculateOutDegree(int outdeg[]) {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
@@ -116,7 +123,7 @@ public class SparseMatrixCSR extends SparseMatrix {
 	// if you find it useful
     }
 
-	public void processEdgemapOnInput(Relax relax, int from, int to) throws Exception {
+	public void processEdgemapOnInput(Relax relax, List<String> workload) {
 	}
 }
 

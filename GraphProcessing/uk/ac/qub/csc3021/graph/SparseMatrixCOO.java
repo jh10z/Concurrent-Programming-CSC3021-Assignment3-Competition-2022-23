@@ -90,7 +90,12 @@ public class SparseMatrixCOO extends SparseMatrix {
     // Return number of edges in the graph
     public int getNumEdges() { return num_edges; }
 
-    // Auxiliary function for PageRank calculation
+	@Override
+	public String getFile() {
+		return null;
+	}
+
+	// Auxiliary function for PageRank calculation
     public void calculateOutDegree(int outdeg[]) {
 		// TODO:
 		//    Calculate the out-degree for every vertex, i.e., the
@@ -116,7 +121,7 @@ public class SparseMatrixCOO extends SparseMatrix {
 		// CHECK IF YOU NEED TO PUT CODE HERE
     }
 
-	public void processEdgemapOnInput(Relax relax, int from, int to) {
+	public void processEdgemapOnInput(Relax relax, List<String> workload) {
 
 	}
 }
