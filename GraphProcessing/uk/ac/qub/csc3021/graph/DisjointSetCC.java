@@ -38,7 +38,7 @@ public class DisjointSetCC {
 					parent.set(r, s);
 				} else {
 					parent.set(r, s);
-					rank.set(s, rank_s++);
+					rank.set(s, ++rank_s);
 				}
 			}
 		}
@@ -86,9 +86,7 @@ public class DisjointSetCC {
 		int[] remap = new int[n];
 		for (int i = 0; i < n; ++i)
 			if (DSCCrelax.find(i) == i) {
-				//System.out.println("Component: " + i);
 				remap[i] = ncc++;
-				//System.out.println("Component Remap: " + remap[i]);
 			}
 
 		if(verbose) {
