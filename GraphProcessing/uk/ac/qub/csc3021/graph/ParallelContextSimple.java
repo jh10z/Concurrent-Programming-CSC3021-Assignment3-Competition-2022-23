@@ -14,7 +14,7 @@ public class ParallelContextSimple extends ParallelContext {
     private final ThreadRead[] readThreads;
     private final ThreadRelax[] relaxThreads;
     private final int num_threads_;
-    private HashSet<String> workload = new HashSet<>();
+    private final HashSet<String> workload = new HashSet<>();
     public ParallelContextSimple(int num_threads_) {
 	    super(num_threads_);
         this.num_threads_ = num_threads_;
@@ -27,13 +27,12 @@ public class ParallelContextSimple extends ParallelContext {
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
         int numOfVertices = matrix.getNumVertices();
-        int remainder = numOfVertices % num_threads_;
 
         File file = new File(matrix.getFile());
-        long buffer = file.length() / num_threads_;  // 12 on 4 threads fastest
+        long buffer = file.length() / 12;  // 12 on 4 threads fastest
 
         long pos = 0;
-        long size = (long)(buffer * 1.2);
+        long size = buffer;
         for (int i = 0; i < num_threads_; i++) { // 12 on 4 threads fastest
             if(i == num_threads_ - 1) { // 11 on 4 threads fastest
                 size = file.length() - pos;
@@ -41,7 +40,7 @@ public class ParallelContextSimple extends ParallelContext {
             ThreadRead thread = new ThreadRead(pos, size, matrix.getFile());
             thread.start();
             readThreads[i] = thread;
-            pos = (long)((pos + buffer));
+            pos = (pos + buffer);
         }
         for (int i = 0; i < num_threads_; i++) {
             try {
