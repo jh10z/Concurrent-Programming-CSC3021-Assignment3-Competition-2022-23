@@ -1,13 +1,10 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.io.*;
-import java.lang.ref.Cleaner;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 
 public class ParallelContextSimple extends ParallelContext {
@@ -26,8 +23,6 @@ public class ParallelContextSimple extends ParallelContext {
     public void terminate() {}
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
-        int numOfVertices = matrix.getNumVertices();
-
         File file = new File(matrix.getFile());
         long buffer = file.length() / 24;
 
@@ -50,21 +45,20 @@ public class ParallelContextSimple extends ParallelContext {
             }
         }
 
-            for (int i = 0; i < num_threads_; i++) {
-                ThreadRelax thread = new ThreadRelax(matrix, relax, readThreads[i].getLoad());
-                thread.start();
-                relaxThreads[i] = thread;
-            }
-
-            for (int i = 0; i < num_threads_; i++) {
-                try {
-                    relaxThreads[i].join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        for (int i = 0; i < num_threads_; i++) {
+            ThreadRelax thread = new ThreadRelax(matrix, relax, readThreads[i].getLoad());
+            thread.start();
+            relaxThreads[i] = thread;
         }
 
+        for (int i = 0; i < num_threads_; i++) {
+            try {
+                relaxThreads[i].join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     private static class ThreadRead extends Thread {
         private final long pos;
@@ -83,21 +77,20 @@ public class ParallelContextSimple extends ParallelContext {
         public void run() {
             try (RandomAccessFile reader = new RandomAccessFile(file, "r");
                  FileChannel channel = reader.getChannel();
-                 ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-
-                MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
-                String str = "";
-                if(buff.hasRemaining()) {
-                    byte[] data = new byte[buff.remaining()];
-                    buff.get(data);
-                    str = new String(data, StandardCharsets.UTF_8);
-                }
-                String[] line = str.split("\n");
-                int start = pos == 0 ? 3 : 1;
-                int end = pos + size == file.length() ? line.length : line.length - 1;
-                this.load = Arrays.copyOfRange(line, start, end);
-                buff.rewind();
-                buff.clear();
+                 ByteArrayOutputStream ignored = new ByteArrayOutputStream()) {
+                    MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
+                    String str = "";
+                    if(buff.hasRemaining()) {
+                        byte[] data = new byte[buff.remaining()];
+                        buff.get(data);
+                        str = new String(data, StandardCharsets.UTF_8);
+                    }
+                    String[] line = str.split("\n");
+                    int start = pos == 0 ? 3 : 1;
+                    int end = pos + size == file.length() ? line.length : line.length - 1;
+                    this.load = Arrays.copyOfRange(line, start, end);
+                    buff.rewind();
+                    buff.clear();
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
