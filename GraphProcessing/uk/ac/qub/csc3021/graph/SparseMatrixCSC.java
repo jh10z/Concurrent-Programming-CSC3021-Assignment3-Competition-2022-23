@@ -79,17 +79,13 @@ public class SparseMatrixCSC extends SparseMatrix {
 		}
     }
 
-	public void processEdgemapOnInput(Relax relax, List<String> workload) {
-		//double tm_start = System.nanoTime();
-
-		for (int i = 0; i < workload.size(); i++) {
-			String[] elm = workload.get(i).split(" ");
+	public void processEdgemapOnInput(Relax relax, String[] workload) {
+		for (int i = 0; i < workload.length; i++) {
+			String[] elm = workload[i].split(" ");
 			for (int j = 1; j < elm.length; j++) {
 				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
 			}
 		}
-//		double tm_step = (double)(System.nanoTime() - tm_start) * 1e-9;
-//		System.err.println("emap processing time=" + tm_step + " seconds");
 
 	}
 }

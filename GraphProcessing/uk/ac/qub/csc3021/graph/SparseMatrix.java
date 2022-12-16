@@ -24,6 +24,6 @@ public abstract class SparseMatrix {
     // method is used only in Assignment 2.
     public abstract void ranged_edgemap(Relax relax, int from, int to);
 
-    public abstract void processEdgemapOnInput(Relax relax, List<String> workload);
+    public abstract void processEdgemapOnInput(Relax relax, String[] workload);
 }
 
