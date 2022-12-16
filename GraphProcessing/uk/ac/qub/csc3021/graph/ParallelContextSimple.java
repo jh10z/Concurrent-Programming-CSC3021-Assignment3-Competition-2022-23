@@ -1,6 +1,7 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.io.*;
+import java.lang.ref.Cleaner;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +21,6 @@ public class ParallelContextSimple extends ParallelContext {
         this.num_threads_ = num_threads_;
         this.readThreads = new ThreadRead[num_threads_];
         this.relaxThreads = new ThreadRelax[num_threads_];
-
     }
 
     public void terminate() {}
@@ -29,12 +29,12 @@ public class ParallelContextSimple extends ParallelContext {
         int numOfVertices = matrix.getNumVertices();
 
         File file = new File(matrix.getFile());
-        long buffer = file.length() / 12;  // 12 on 4 threads fastest
+        long buffer = file.length() / 24;
 
         long pos = 0;
         long size = buffer;
-        for (int i = 0; i < num_threads_; i++) { // 12 on 4 threads fastest
-            if(i == num_threads_ - 1) { // 11 on 4 threads fastest
+        for (int i = 0; i < num_threads_; i++) {
+            if(i == num_threads_ - 1) {
                 size = file.length() - pos;
             }
             ThreadRead thread = new ThreadRead(pos, size, matrix.getFile());
@@ -96,9 +96,13 @@ public class ParallelContextSimple extends ParallelContext {
                 int start = pos == 0 ? 3 : 1;
                 int end = pos + size == file.length() ? line.length : line.length - 1;
                 this.load = Arrays.copyOfRange(line, start, end);
+                buff.rewind();
+                buff.clear();
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
         }
     }
 
