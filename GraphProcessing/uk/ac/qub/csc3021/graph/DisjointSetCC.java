@@ -25,20 +25,20 @@ public class DisjointSetCC {
 		}
 
 		private void union(int a, int b) { //union by rank
-			int x = find(a);
-			int y = find(b);
+			int r = find(a);
+			int s = find(b);
 
-			if(x != y) {
-				int rank_x = rank.get(x);
-				int rank_y = rank.get(y);
+			if(r != s) {
+				int rank_r = rank.get(r);
+				int rank_s = rank.get(s);
 
-				if(rank_x < rank_y) {
-					parent.set(x, y);
-				} else if(rank_x > rank_y) {
-					parent.set(y, x);
+				if(rank_r > rank_s) {
+					parent.set(s, r);
+				} else if(rank_r < rank_s) {
+					parent.set(r, s);
 				} else {
-					parent.set(x, y);
-					rank.set(y, ++rank_y);
+					parent.set(r, s);
+					rank.set(s, rank_s++);
 				}
 			}
 		}
