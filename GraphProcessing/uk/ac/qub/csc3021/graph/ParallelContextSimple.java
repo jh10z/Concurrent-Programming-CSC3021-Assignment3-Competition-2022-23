@@ -4,117 +4,84 @@ import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class ParallelContextSimple extends ParallelContext {
 
-    private final ThreadRead[] readThreads;
-    private final ThreadRelax[] relaxThreads;
     private final int num_threads_;
     private final HashSet<String> workload = new HashSet<>();
     public ParallelContextSimple(int num_threads_) {
 	    super(num_threads_);
         this.num_threads_ = num_threads_;
-        this.readThreads = new ThreadRead[num_threads_];
-        this.relaxThreads = new ThreadRelax[num_threads_];
     }
 
     public void terminate() {}
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
         File file = new File(matrix.getFile());
-        long buffer = file.length() / 24;
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
+        Collection<Future<?>> tasks = new LinkedList<Future<?>>();
 
-        long pos = 0;
-        long size = buffer;
-        for (int i = 0; i < num_threads_; i++) {
-            if(i == num_threads_ - 1) {
-                size = file.length() - pos;
+        long bufferSize = 128 * 1024;
+        long currentPos = 0;
+        double taskCount = Math.ceil((double)file.length() / bufferSize);
+
+        while(taskCount-- > 0) {
+            if(currentPos + bufferSize > file.length()) {
+                bufferSize = file.length() - currentPos;
             }
-            ThreadRead thread = new ThreadRead(pos, size, matrix.getFile());
-            thread.start();
-            readThreads[i] = thread;
-            pos = (pos + buffer);
+            Runnable run = new ThreadReadRelax(currentPos, bufferSize, matrix.getFile(), matrix, relax);
+            tasks.add(executor.submit(run));
+            currentPos += bufferSize;
         }
-        for (int i = 0; i < num_threads_; i++) {
+        for (Future<?> currTask : tasks) {
             try {
-                readThreads[i].join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        for (int i = 0; i < num_threads_; i++) {
-            ThreadRelax thread = new ThreadRelax(matrix, relax, readThreads[i].getLoad());
-            thread.start();
-            relaxThreads[i] = thread;
-        }
-
-        for (int i = 0; i < num_threads_; i++) {
-            try {
-                relaxThreads[i].join();
-            } catch (InterruptedException e) {
+                currTask.get();
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private static class ThreadRead extends Thread {
+    private static class ThreadReadRelax implements Runnable {
         private final long pos;
         private final long size;
         private final String file;
-        private String[] load;
+        private final SparseMatrix matrix;
+        private final Relax relax;
 
-        public ThreadRead (long pos, long size, String file) {
+        public ThreadReadRelax (long pos, long size, String file, SparseMatrix matrix, Relax relax) {
             this.pos = pos;
             this.size = size;
             this.file = file;
-        }
-        public String[] getLoad() {
-            return load;
+            this.matrix = matrix;
+            this.relax = relax;
         }
         public void run() {
-            try (RandomAccessFile reader = new RandomAccessFile(file, "r");
-                 FileChannel channel = reader.getChannel();
-                 ByteArrayOutputStream ignored = new ByteArrayOutputStream()) {
-                    MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
-                    String str = "";
-                    if(buff.hasRemaining()) {
-                        byte[] data = new byte[buff.remaining()];
-                        buff.get(data);
-                        str = new String(data, StandardCharsets.UTF_8);
-                    }
-                    String[] line = str.split("\n");
-                    int start = pos == 0 ? 3 : 1;
-                    int end = pos + size == file.length() ? line.length : line.length - 1;
-                    this.load = Arrays.copyOfRange(line, start, end);
-                    buff.rewind();
-                    buff.clear();
+            try (RandomAccessFile reader = new RandomAccessFile(file, "r"); FileChannel channel = reader.getChannel()) {
+                MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
+                String str = null;
+                if(buff.hasRemaining()) { //get all bytes from buffer and save them as a string
+                    byte[] data = new byte[buff.remaining()];
+                    buff.get(data);
+                    str = new String(data, StandardCharsets.UTF_8);
+                }
+                if(str != null) {
+                    String[] line = str.split("\n"); //split string by lines
+                    reader.seek(pos + size);
 
+                    int start = pos == 0 ? 3 : 1; //discard start lines
+                    if(pos + size < file.length()) {
+                        line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
+                    }
+                    matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
+                }
+                buff.clear();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-        }
-    }
-
-    private static class ThreadRelax extends Thread {
-        private final SparseMatrix matrix;
-        private final Relax relax;
-        private final String[] workload;
-
-        public ThreadRelax (SparseMatrix matrix, Relax relax, String[] workload) {
-            this.matrix = matrix;
-            this.relax = relax;
-            this.workload = workload;
-        }
-        public void run() {
-            try {
-                matrix.processEdgemapOnInput(relax, workload);
-            } catch(Exception e) {
-                System.err.println("Exception: " + e);
-            }
         }
     }
 }
