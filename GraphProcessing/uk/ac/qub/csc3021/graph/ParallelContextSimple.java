@@ -12,7 +12,6 @@ import java.util.concurrent.*;
 public class ParallelContextSimple extends ParallelContext {
 
     private final int num_threads_;
-    private final HashSet<String> workload = new HashSet<>();
     public ParallelContextSimple(int num_threads_) {
 	    super(num_threads_);
         this.num_threads_ = num_threads_;
@@ -23,12 +22,11 @@ public class ParallelContextSimple extends ParallelContext {
     }
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
+        File file = new File(matrix.getFile());
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
+        Collection<Future<?>> tasks = new LinkedList<>();
         try {
-            File file = new File(matrix.getFile());
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
-            Collection<Future<?>> tasks = new LinkedList<>();
-
-            long bufferSize = 128 * 1204;
+            long bufferSize = 70 * 1204;
             long currentPos = 0;
             double taskCount = Math.ceil((double)file.length() / bufferSize);
 
@@ -43,9 +41,11 @@ public class ParallelContextSimple extends ParallelContext {
             for (Future<?> currTask : tasks) {
                 currTask.get();
             }
-            executor.shutdown();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
+        }
+        finally {
+            executor.shutdown();
         }
     }
 
@@ -64,38 +64,20 @@ public class ParallelContextSimple extends ParallelContext {
             this.relax = relax;
         }
         public void run() {
-            try (RandomAccessFile reader = new RandomAccessFile(file, "r"); FileChannel channel = reader.getChannel()) {
-                MappedByteBuffer buff = null;
-                boolean mapped = false;
-                while(!mapped) {
-                    try { //Fix Memory Issue?
-                        buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
-                        mapped = true;
-                    } catch (java.io.IOException e) {
-                        System.gc();
-                        System.runFinalization();
-                        e.printStackTrace();
-                    }
-                }
-                String str = null;
-                if(buff != null) {
-                    if(buff.hasRemaining()) { //get all bytes from buffer and save them as a string
-                        byte[] data = new byte[buff.remaining()];
-                        buff.get(data);
-                        str = new String(data, StandardCharsets.UTF_8);
-                    }
-                    if(str != null) {
-                        String[] line = str.split("\n"); //split string by lines
-                        reader.seek(pos + size);
+            try (RandomAccessFile reader = new RandomAccessFile(file, "r")) {
+                byte[] data = new byte[(int)size];
+                reader.seek(pos);
+                reader.read(data, 0, (int)size);
+                String str = new String(data, StandardCharsets.UTF_8);
+                String[] line = str.split("\n"); //split string by lines
+                reader.seek(pos + size);
 
-                        int start = pos == 0 ? 3 : 1; //discard start lines
-                        if(pos + size < file.length()) {
-                            line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
-                        }
-                        matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
-                    }
-                    buff.clear();
+                int start = pos == 0 ? 3 : 1; //discard start lines
+                if(pos + size < file.length()) {
+                    line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
                 }
+                matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

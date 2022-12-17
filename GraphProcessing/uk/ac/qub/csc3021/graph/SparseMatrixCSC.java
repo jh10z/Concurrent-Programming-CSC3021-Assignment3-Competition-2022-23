@@ -86,7 +86,6 @@ public class SparseMatrixCSC extends SparseMatrix {
 				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
 			}
 		}
-
 	}
 }
 
