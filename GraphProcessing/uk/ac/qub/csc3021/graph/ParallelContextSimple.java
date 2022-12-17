@@ -21,7 +21,7 @@ public class ParallelContextSimple extends ParallelContext {
     public void edgemap(SparseMatrix matrix, Relax relax) {
         File file = new File(matrix.getFile());
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
-        Collection<Future<?>> tasks = new LinkedList<Future<?>>();
+        Collection<Future<?>> tasks = new LinkedList<>();
 
         long bufferSize = 128 * 1024;
         long currentPos = 0;
@@ -42,6 +42,7 @@ public class ParallelContextSimple extends ParallelContext {
                 throw new RuntimeException(e);
             }
         }
+        executor.shutdown();
     }
 
     private static class ThreadReadRelax implements Runnable {
