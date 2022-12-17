@@ -1,6 +1,8 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.io.*;
+import java.lang.ref.Cleaner;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -16,33 +18,35 @@ public class ParallelContextSimple extends ParallelContext {
         this.num_threads_ = num_threads_;
     }
 
-    public void terminate() {}
+    public void terminate() {
+
+    }
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
-        File file = new File(matrix.getFile());
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
-        Collection<Future<?>> tasks = new LinkedList<>();
+        try {
+            File file = new File(matrix.getFile());
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
+            Collection<Future<?>> tasks = new LinkedList<>();
 
-        long bufferSize = 128 * 1024;
-        long currentPos = 0;
-        double taskCount = Math.ceil((double)file.length() / bufferSize);
+            long bufferSize = 128 * 1204;
+            long currentPos = 0;
+            double taskCount = Math.ceil((double)file.length() / bufferSize);
 
-        while(taskCount-- > 0) {
-            if(currentPos + bufferSize > file.length()) {
-                bufferSize = file.length() - currentPos;
+            while(taskCount-- > 0) {
+                if(currentPos + bufferSize > file.length()) {
+                    bufferSize = file.length() - currentPos;
+                }
+                Runnable run = new ThreadReadRelax(currentPos, bufferSize, matrix.getFile(), matrix, relax);
+                tasks.add(executor.submit(run));
+                currentPos += bufferSize;
             }
-            Runnable run = new ThreadReadRelax(currentPos, bufferSize, matrix.getFile(), matrix, relax);
-            tasks.add(executor.submit(run));
-            currentPos += bufferSize;
-        }
-        for (Future<?> currTask : tasks) {
-            try {
+            for (Future<?> currTask : tasks) {
                 currTask.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
             }
+            executor.shutdown();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
         }
-        executor.shutdown();
     }
 
     private static class ThreadReadRelax implements Runnable {
@@ -61,26 +65,39 @@ public class ParallelContextSimple extends ParallelContext {
         }
         public void run() {
             try (RandomAccessFile reader = new RandomAccessFile(file, "r"); FileChannel channel = reader.getChannel()) {
-                MappedByteBuffer buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
-                String str = null;
-                if(buff.hasRemaining()) { //get all bytes from buffer and save them as a string
-                    byte[] data = new byte[buff.remaining()];
-                    buff.get(data);
-                    str = new String(data, StandardCharsets.UTF_8);
-                }
-                if(str != null) {
-                    String[] line = str.split("\n"); //split string by lines
-                    reader.seek(pos + size);
-
-                    int start = pos == 0 ? 3 : 1; //discard start lines
-                    if(pos + size < file.length()) {
-                        line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
+                MappedByteBuffer buff = null;
+                boolean mapped = false;
+                while(!mapped) {
+                    try { //Fix Memory Issue?
+                        buff = channel.map(FileChannel.MapMode.READ_ONLY, pos, size);
+                        mapped = true;
+                    } catch (java.io.IOException e) {
+                        System.gc();
+                        System.runFinalization();
+                        e.printStackTrace();
                     }
-                    matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
                 }
-                buff.clear();
+                String str = null;
+                if(buff != null) {
+                    if(buff.hasRemaining()) { //get all bytes from buffer and save them as a string
+                        byte[] data = new byte[buff.remaining()];
+                        buff.get(data);
+                        str = new String(data, StandardCharsets.UTF_8);
+                    }
+                    if(str != null) {
+                        String[] line = str.split("\n"); //split string by lines
+                        reader.seek(pos + size);
+
+                        int start = pos == 0 ? 3 : 1; //discard start lines
+                        if(pos + size < file.length()) {
+                            line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
+                        }
+                        matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
+                    }
+                    buff.clear();
+                }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
 
         }
