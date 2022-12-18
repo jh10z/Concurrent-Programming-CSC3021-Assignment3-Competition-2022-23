@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 // This class represents the adjacency matrix of a graph as a sparse matrix
@@ -74,11 +75,21 @@ public class SparseMatrixCSC extends SparseMatrix {
 
 	public void processEdgemapOnInput(Relax relax, String[] workload) {
 		for (String s : workload) {
-			String[] elm = s.split(" ");
-			for (int j = 1; j < elm.length; j++) {
-				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
+			ArrayList<String> elm = split(s);
+			for (int j = 1; j < elm.size(); j++) {
+				relax.relax(Integer.parseInt(elm.get(j)), Integer.parseInt(elm.get(0)));
 			}
 		}
+	}
+	public ArrayList<String> split(String str) { //Test
+		ArrayList<String> elements = new ArrayList<>();
+		int pos = 0, end;
+		while ((end = str.indexOf(' ', pos)) >= 0) {
+			elements.add(str.substring(pos, end));
+			pos = end + 1;
+		}
+		elements.add(str.substring(pos));
+		return elements;
 	}
 }
 

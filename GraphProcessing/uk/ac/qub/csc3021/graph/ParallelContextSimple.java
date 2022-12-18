@@ -1,11 +1,6 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.io.*;
-import java.lang.ref.Cleaner;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,17 +20,19 @@ public class ParallelContextSimple extends ParallelContext {
         try {
             File file = new File(matrix.getFile());
             ThreadPoolExecutor executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(num_threads_);
+            executor.prestartAllCoreThreads();
+            executor.setKeepAliveTime(0, TimeUnit.MICROSECONDS);
 
-            long bufferSize = 1024 * 110;
+            long bufferSize = 2408 * 1024;
             long currentPos = 0L;
-            long taskCount = file.length() / bufferSize; //beware of rounding down
+            double taskCount = Math.ceil((double)file.length() / bufferSize);
 
             while (taskCount-- > 0) {
                 if (currentPos + bufferSize > file.length()) {
                     bufferSize = file.length() - currentPos;
                     taskCount = 0;
                 }
-                ThreadReadRelax run = new ThreadReadRelax(currentPos, (int) bufferSize, matrix, relax);
+                ThreadReadRelax run = new ThreadReadRelax(currentPos, (int)bufferSize, matrix, relax);
                 executor.submit(run);
                 currentPos += bufferSize;
             }
