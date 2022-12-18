@@ -25,8 +25,9 @@ public class ParallelContextSimple extends ParallelContext {
         File file = new File(matrix.getFile());
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
         Collection<Future<?>> tasks = new LinkedList<>();
+
         try {
-            long bufferSize = 8192L * 64L;
+            long bufferSize = 8192 * 8192;
             long currentPos = 0L;
             double taskCount = Math.ceil((double)file.length() / bufferSize);
 
@@ -69,49 +70,19 @@ public class ParallelContextSimple extends ParallelContext {
                 byte[] data = new byte[(int)size];
                 reader.seek(pos);
                 reader.read(data, 0, (int)size);
+                String str = new String(data, StandardCharsets.UTF_8);
+                String[] line = str.split("\n");
+                reader.seek(pos + size);
 
                 int start = pos == 0 ? 3 : 1;
-                data = discardFirstLine(data, start);
-
                 if(pos + size < file.length()) {
-                    data = includeLastLine(data, reader);
+                    line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
                 }
-                matrix.processEdgemapOnInput(relax, new String(data, StandardCharsets.UTF_8).split("\n"));
+
+                matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        private byte[] discardFirstLine(byte[] data, int startingLineNum) {
-            int start = 0;
-            int lineCounter = 0;
-            for (int i = 0; i < data.length; i++) {
-                if(data[i] == 0xA) {
-                    start = i + 1;
-                    lineCounter++;
-                }
-                if(lineCounter == startingLineNum) {
-                    break;
-                }
-            }
-            return Arrays.copyOfRange(data, start, data.length);
-        }
-
-        private byte[] includeLastLine(byte[] data, RandomAccessFile reader) {
-            byte character;
-            ArrayList<Byte> endLine = new ArrayList<>();
-            try {
-                while ((character = reader.readByte()) != 0xA) {
-                    endLine.add(character);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            byte[] lines = new byte[data.length + endLine.size()];
-            for (int i = 0; i < lines.length; i++) {
-                lines[i] = data.length - 1 < i ? data[i] : endLine.get(i - data.length);
-            }
-            return lines;
         }
     }
 }
