@@ -127,8 +127,5 @@ public class SparseMatrixCSR extends SparseMatrix {
 	public void processEdgemapOnInput(Relax relax, String[] workload) {
 
 	}
-
-	public void processEdgemapOnInput(Relax relax, List<String> workload) {
-	}
 }
 

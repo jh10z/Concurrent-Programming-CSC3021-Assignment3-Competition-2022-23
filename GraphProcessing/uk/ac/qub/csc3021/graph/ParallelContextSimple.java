@@ -12,74 +12,74 @@ import java.util.concurrent.*;
 public class ParallelContextSimple extends ParallelContext {
 
     private final int num_threads_;
+
     public ParallelContextSimple(int num_threads_) {
 	    super(num_threads_);
         this.num_threads_ = num_threads_;
     }
 
-    public void terminate() {
-
-    }
+    public void terminate() {}
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
         File file = new File(matrix.getFile());
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(num_threads_);
-        Collection<Future<?>> tasks = new LinkedList<>();
+        ThreadPoolExecutor executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(num_threads_);
 
         try {
-            long bufferSize = 8192 * 8192;
+            long bufferSize = 2024 * 1024;
             long currentPos = 0L;
-            double taskCount = Math.ceil((double)file.length() / bufferSize);
+            long taskCount = file.length() / bufferSize; //beware of rounding down
 
             while(taskCount-- > 0) {
                 if(currentPos + bufferSize > file.length()) {
                     bufferSize = file.length() - currentPos;
                     taskCount = 0;
                 }
-                Runnable run = new ThreadReadRelax(currentPos, bufferSize, matrix.getFile(), matrix, relax);
-                tasks.add(executor.submit(run));
+                ThreadReadRelax run = new ThreadReadRelax(currentPos, (int)bufferSize, matrix, relax);
+                executor.submit(run);
                 currentPos += bufferSize;
             }
-            for (Future<?> currTask : tasks) {
-                currTask.get();
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        finally {
+
             executor.shutdown();
+            if(!executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.MILLISECONDS)) {
+                throw new InterruptedException("CSC3021: I couldn't join threads...");
+            }
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private static class ThreadReadRelax implements Runnable {
         private final long pos;
-        private final long size;
-        private final String file;
+        private final int size;
         private final SparseMatrix matrix;
         private final Relax relax;
+        private final File file;
 
-        public ThreadReadRelax (long pos, long size, String file, SparseMatrix matrix, Relax relax) {
+        public ThreadReadRelax (long pos, int size, SparseMatrix matrix, Relax relax) {
             this.pos = pos;
             this.size = size;
-            this.file = file;
             this.matrix = matrix;
             this.relax = relax;
+            this.file = new File(matrix.getFile());
         }
+
         public void run() {
             try (RandomAccessFile reader = new RandomAccessFile(file, "r")) {
-                byte[] data = new byte[(int)size];
+                byte[] data = new byte[size];
                 reader.seek(pos);
-                reader.read(data, 0, (int)size);
-                String str = new String(data, StandardCharsets.UTF_8);
-                String[] line = str.split("\n");
-                reader.seek(pos + size);
+                reader.read(data, 0, size);
+
+                String[] line = new String(data, StandardCharsets.UTF_8).split("\n"); //slow
 
                 int start = pos == 0 ? 3 : 1;
-                if(pos + size < file.length()) {
-                    line[line.length - 1] = line[line.length - 1] + reader.readByte() + reader.readLine();
+                if(pos + size < matrix.getFile().length()) {
+                    reader.seek(pos - line[line.length - 1].length());
+                    line[line.length - 1] = reader.readLine();
                 }
 
                 matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(line, start, line.length));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

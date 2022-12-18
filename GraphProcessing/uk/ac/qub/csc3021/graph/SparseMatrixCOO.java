@@ -125,10 +125,6 @@ public class SparseMatrixCOO extends SparseMatrix {
 	public void processEdgemapOnInput(Relax relax, String[] workload) {
 
 	}
-
-	public void processEdgemapOnInput(Relax relax, List<String> workload) {
-
-	}
 }
 
 

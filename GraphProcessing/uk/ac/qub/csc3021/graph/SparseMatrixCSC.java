@@ -23,7 +23,16 @@ public class SparseMatrixCSC extends SparseMatrix {
     public SparseMatrixCSC(String file) {
 		try {
 			this.file = file;
-			readFile();
+			InputStreamReader is = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+			BufferedReader rd = new BufferedReader(is);
+			String line = rd.readLine();
+
+			if(!line.equalsIgnoreCase("CSC" ) && !line.equalsIgnoreCase("CSC-CSR")) {
+				throw new Exception("file format error -- header");
+			}
+			num_vertices = Integer.parseInt(rd.readLine());
+			num_edges = Integer.parseInt(rd.readLine());
+			rd.close();
 		} catch(FileNotFoundException e) {
 			System.err.println( "File not found: " + e );
 		} catch(UnsupportedEncodingException e) {
@@ -32,22 +41,6 @@ public class SparseMatrixCSC extends SparseMatrix {
 			System.err.println( "Exception: " + e );
 		}
     }
-    void readFile() throws Exception {
-		InputStreamReader is = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-		BufferedReader rd = new BufferedReader(is);
-		for (int i = 0; i < 3; i++) {
-			String line = rd.readLine();
-			if(line == null) {
-				throw new Exception("premature end of file");
-			}
-			if(i==0 && !line.equalsIgnoreCase("CSC" ) && !line.equalsIgnoreCase("CSC-CSR")) {
-				throw new Exception("file format error -- header");
-			}
-			if(i==1) num_vertices = Integer.parseInt(line);
-			if(i==2) num_edges = Integer.parseInt(line);
-		}
-		rd.close();
-	}
 
     // Return number of vertices in the graph
     public int getNumVertices() { return num_vertices; }
@@ -80,8 +73,8 @@ public class SparseMatrixCSC extends SparseMatrix {
     }
 
 	public void processEdgemapOnInput(Relax relax, String[] workload) {
-		for (int i = 0; i < workload.length; i++) {
-			String[] elm = workload[i].split(" ");
+		for (String s : workload) {
+			String[] elm = s.split(" ");
 			for (int j = 1; j < elm.length; j++) {
 				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
 			}
