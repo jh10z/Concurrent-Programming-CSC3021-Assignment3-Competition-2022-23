@@ -22,71 +22,30 @@ public class ParallelContextSimple extends ParallelContext {
     public void terminate() {}
 
     public void edgemap(SparseMatrix matrix, Relax relax) {
-        boolean largeFile = false;
-
-        ThreadReadRelaxMapped[] threads = new ThreadReadRelaxMapped[num_threads_];
-
-        try (RandomAccessFile reader = new RandomAccessFile(matrix.getFile(), "r"); FileChannel channel = reader.getChannel()) {
-            //Map File to Memory
-            MappedByteBuffer map = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-            byte[] data = new byte[map.remaining()];
-            if(map.hasRemaining()) {
-                map.get(data);
-            } else {
-                throw new InterruptedException();
-            }
-
-            long buffer = (channel.size() / num_threads_);
-            long endPos = buffer;
-            for (int i = 0; i < num_threads_; i++) {
-                int endIndex = (int)(i * buffer + buffer);
-                if(num_threads_ - 1 == i) {
-                    endPos = channel.size();
-                    endIndex = (int)channel.size();
-                }
-                ThreadReadRelaxMapped thread = new ThreadReadRelaxMapped(Arrays.copyOfRange(data,
-                        (int)(i * buffer), endIndex), matrix, relax,
-                        (int)(i * buffer), (int)endPos);
-                thread.start();
-                threads[i] = thread;
-            }
-
-            for (ThreadReadRelaxMapped thread : threads) {
-                thread.join();
-            }
-
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            largeFile = true;
-        }
-
-        if(largeFile) {
+        try {
             File file = new File(matrix.getFile());
             ThreadPoolExecutor executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(num_threads_);
 
-            try {
-                long bufferSize = 2024 * 1024;
-                long currentPos = 0L;
-                long taskCount = file.length() / bufferSize; //beware of rounding down
+            long bufferSize = 1024 * 110;
+            long currentPos = 0L;
+            long taskCount = file.length() / bufferSize; //beware of rounding down
 
-                while(taskCount-- > 0) {
-                    if(currentPos + bufferSize > file.length()) {
-                        bufferSize = file.length() - currentPos;
-                        taskCount = 0;
-                    }
-                    ThreadReadRelax run = new ThreadReadRelax(currentPos, (int)bufferSize, matrix, relax);
-                    executor.submit(run);
-                    currentPos += bufferSize;
+            while (taskCount-- > 0) {
+                if (currentPos + bufferSize > file.length()) {
+                    bufferSize = file.length() - currentPos;
+                    taskCount = 0;
                 }
-
-                executor.shutdown();
-                if(!executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.MILLISECONDS)) {
-                    throw new InterruptedException("CSC3021: I couldn't join threads...");
-                }
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                ThreadReadRelax run = new ThreadReadRelax(currentPos, (int) bufferSize, matrix, relax);
+                executor.submit(run);
+                currentPos += bufferSize;
             }
+
+            executor.shutdown();
+            if (!executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.MILLISECONDS)) {
+                throw new InterruptedException("CSC3021: I couldn't join threads...");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -124,29 +83,6 @@ public class ParallelContextSimple extends ParallelContext {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private static class ThreadReadRelaxMapped extends Thread {
-        private final byte[] workload;
-        private final SparseMatrix matrix;
-        private final Relax relax;
-        private final int pos;
-        private final int size;
-
-        public ThreadReadRelaxMapped (byte[] workload, SparseMatrix matrix, Relax relax, int pos, int size) {
-            this.workload = workload;
-            this.matrix = matrix;
-            this.relax = relax;
-            this.pos = pos;
-            this.size = size;
-        }
-
-        public void run() {
-            String[] lines = new String(workload, StandardCharsets.UTF_8).split("\n");
-            int start = pos == 0 ? 3 : 1;
-            int end = pos + size == matrix.getFile().length() ? lines.length : lines.length - 1;
-            matrix.processEdgemapOnInput(relax, Arrays.copyOfRange(lines, start, end));
         }
     }
 }
