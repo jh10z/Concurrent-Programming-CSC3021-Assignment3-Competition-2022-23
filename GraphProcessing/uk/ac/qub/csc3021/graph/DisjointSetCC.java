@@ -20,8 +20,8 @@ public class DisjointSetCC {
 			int u = x;
 			while(u != parent.get(u))
 			{
-				parent.set(u, parent.get(parent.get(u))); //set u to grandparent (halving path length)
-				u = parent.get(u);
+				parent.set(u, parent.get(parent.get(u)));
+				u = parent.get(u); //set u to every other grandparent (halving path length)
 			}
 			return u;
 
@@ -30,8 +30,18 @@ public class DisjointSetCC {
 //			{
 //				int v = parent.get(u);
 //				int w = parent.get(v);
-//				parent.set(u, w); //set u to grandparent (halving path length)
-//				u = parent.get(u);
+//				parent.set(u, w); //set u to grandparent
+//				u = v; //splitting
+//			}
+//			return u;
+//
+//			int u = x;
+//			while(u != parent.get(u))
+//			{
+//				int v = parent.get(u);
+//				int w = parent.get(v);
+//				parent.set(u, w); //set u to grandparent
+//				u = v; //halving
 //			}
 //			return u;
 
