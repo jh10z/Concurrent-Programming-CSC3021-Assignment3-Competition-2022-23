@@ -1,6 +1,8 @@
 package uk.ac.qub.csc3021.graph;
 
 import java.io.*;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
@@ -23,7 +25,7 @@ public class ParallelContextSimple extends ParallelContext {
             executor.prestartAllCoreThreads();
             executor.setKeepAliveTime(0, TimeUnit.MICROSECONDS);
 
-            long bufferSize = 2408 * 1024;
+            long bufferSize = 1024 * 250;
             long currentPos = 0L;
             double taskCount = Math.ceil((double)file.length() / bufferSize);
 
@@ -70,7 +72,8 @@ public class ParallelContextSimple extends ParallelContext {
                 String[] line = new String(data, StandardCharsets.UTF_8).split("\n"); //slow
 
                 int start = pos == 0 ? 3 : 1;
-                if(pos + size < matrix.getFile().length()) {
+                int fileLength = matrix.getFile().length();
+                if(pos + size < fileLength) {
                     reader.seek(pos - line[line.length - 1].length());
                     line[line.length - 1] = reader.readLine();
                 }

@@ -76,8 +76,9 @@ public class SparseMatrixCSC extends SparseMatrix {
 	public void processEdgemapOnInput(Relax relax, String[] workload) {
 		for (String s : workload) {
 			String[] elm = s.split(" ");
+			int dest = Integer.parseInt(elm[0]); //TIME SAVER lol
 			for (int j = 1; j < elm.length; j++) {
-				relax.relax(Integer.parseInt(elm[j]), Integer.parseInt(elm[0]));
+				relax.relax(Integer.parseInt(elm[j]), dest);
 			}
 		}
 	}
